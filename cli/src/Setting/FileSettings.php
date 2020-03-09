@@ -38,6 +38,10 @@ namespace NxtLvlSoftware\LaravelModulesCli\Setting;
 
 use Illuminate\Contracts\View\View as ViewInstance;
 use Illuminate\Support\Facades\View;
+use function basename;
+use function dirname;
+use function str_replace;
+use function trim;
 
 class FileSettings {
 
@@ -51,13 +55,32 @@ class FileSettings {
 	 */
 	private $output;
 
-	public function __construct(string $template, string $output) {
-		$this->template = $template;
-		$this->output = $output;
+	/**
+	 * @var \NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings
+	 */
+	private $moduleSettings;
+
+	/**
+	 * Constructor is final to prevent modifying the signature. Use @link init() to
+	 * perform actions during construction.
+	 */
+	final public function __construct(ModuleSettings $moduleSettings, string $path) {
+		$this->moduleSettings = $moduleSettings;
+		$this->output = $path;
+		$this->template = $this->resolveTemplateName();
+
+		$this->init();
 	}
 
-	public function getTemplate() : string {
-		return $this->template;
+	/**
+	 *
+	 */
+	protected function init() : void {
+		//
+	}
+
+	public function getModuleSettings() : ModuleSettings {
+		return $this->moduleSettings;
 	}
 
 	public function getView() : ViewInstance {
@@ -66,8 +89,22 @@ class FileSettings {
 		]);
 	}
 
+	public function getTemplate() : string {
+		return $this->template;
+	}
+
 	public function getOutput() : string {
 		return $this->output;
+	}
+
+	/**
+	 * Get a stub filename from the file path relative to the module project.
+	 */
+	private function resolveTemplateName() : string {
+		$name = str_replace(".", "_", trim(basename($this->output), ".")); // replace file extension separator '.' with '_'
+		$base = str_replace("/", ".", trim(dirname($this->output), "/")); // replace path separators '/' with '.'
+
+		return $base . "." . $name;
 	}
 
 }

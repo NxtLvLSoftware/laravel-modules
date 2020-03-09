@@ -37,6 +37,7 @@ declare(strict_types=1);
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleFilesystem;
 use NxtLvlSoftware\LaravelModulesCli\Generator\ModuleGenerator;
 use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
@@ -49,19 +50,20 @@ use const DIRECTORY_SEPARATOR;
 class MakeModuleCommand extends Command {
 	use RequiresModuleFilesystem;
 
-	protected $signature = "make:module {name} {--s|structure=}";
+	protected $signature = "make:module {name} {--namespace=} {--s|structure=}";
 
 	protected $description = "Create a new module.";
 
 	public function handle() : void {
 		$name = $this->name();
+		$ns = $this->namespace();
 		$structure = $this->structure();
 		$path = getcwd() . DIRECTORY_SEPARATOR . $name;
 
 		$generator = new ModuleGenerator(
 			$this->argument("name"),
 			$this->createModuleFilesystem($path),
-			new ModuleSettings($path, $structure)
+			new ModuleSettings($path, $ns, $structure)
 		);
 		$generator->generate();
 	}
@@ -71,6 +73,19 @@ class MakeModuleCommand extends Command {
 	 */
 	private function name() : string {
 		return $this->argument("name");
+	}
+
+	/**
+	 * Resolve the namespace option value.
+	 */
+	private function namespace() : string {
+		$opt = $this->option("namespace");
+
+		if($opt !== null) {
+			return $opt;
+		}
+
+		return Str::ucfirst($this->name());
 	}
 
 	/**

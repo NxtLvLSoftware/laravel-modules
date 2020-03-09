@@ -1,12 +1,12 @@
 <?php
 /**
- * @var \NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings $settings
+ * @var \NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings $settings
  */
 ?>
 <?= '<?php' ?>
 
 
-namespace App\Http\Controllers;
+namespace {{ $settings->getNamespace() }};
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;

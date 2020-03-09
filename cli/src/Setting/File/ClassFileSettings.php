@@ -1,11 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Copyright (C) 2020 NxtLvL Software Solutions
  *
- * @author Jack Noordhuis <me@jacknoordhuis.net>
+ * @author    Jack Noordhuis <me@jacknoordhuis.net>
  * @copyright NxtLvL Software Solutions
  *
  * This is free and unencumbered software released into the public domain.
@@ -34,33 +32,36 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Generator\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Setting\File;
 
-use Exception;
-use Illuminate\Contracts\Filesystem\Filesystem;
-use NxtLvlSoftware\LaravelModulesCli\Generator\Exception\FileNotCreatedException;
-use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
 use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use function str_replace;
+use function trim;
 
-trait GeneratesFiles {
+/**
+ * Settings for class-like namespaced files (classes, traits, interfaces, etc).
+ */
+class ClassFileSettings extends FileSettings {
 
 	/**
-	 * Generate a new directory and throw an exception on failure.
-	 *
-	 * @param \NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings $settings
+	 * @var string
 	 */
-	protected function generateFile(FileSettings $settings) : void {
-		try {
-			(new FileGenerator(
-				$this->getFilesystem(),
-				$settings
-			))
-				->generate();
-		} catch(Exception $e) {
-			throw new FileNotCreatedException("Could not create file '{$settings->getOutput()}' from stub '{$settings->getTemplate()}'", 0, $e);
-		}
+	private $ns;
+
+	protected function init() : void {
+		$this->ns = $this->resolveNamespace();
 	}
 
-	abstract public function getFileSystem() : Filesystem;
+	public function getNamespace() : string {
+		return $this->ns;
+	}
+
+	private function resolveNamespace() : string {
+		$root = trim($this->getOutput(), "/src/"); // strip /src prefix from path
+		$base = substr($root, 0 , (strrpos($root, "."))); // strip file extension
+		$ns = str_replace("/", "\\", $base); // replace path separator with namespace separator
+
+		return $this->getModuleSettings()->getNamespace() . "\\" . $ns; // prepend module namespace
+	}
 
 }

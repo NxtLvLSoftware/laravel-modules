@@ -36,6 +36,7 @@ declare(strict_types=1);
 
 namespace NxtLvlSoftware\LaravelModulesCli\Setting;
 
+use function is_a;
 use function is_iterable;
 use function is_string;
 use const DIRECTORY_SEPARATOR;
@@ -48,22 +49,33 @@ class ModuleSettings {
 	private $path;
 
 	/**
+	 * @var string
+	 */
+	private $ns;
+
+	/**
 	 * @var array
 	 */
 	private $structure;
 
-	public function __construct(string $path, ?array $structure = null) {
+	public function __construct(string $path, string $namespace, ?array $structure = null) {
 		$this->path = $path;
+		$this->ns = $namespace;
 		$this->structure = $structure ?? $this->defaultStructure();
 	}
 
 	/**
 	 * Returns the root path for the module.
-	 *
-	 * @return string
 	 */
 	public function getPath() : string {
 		return $this->path;
+	}
+
+	/**
+	 * Returns the root namespace for the module.
+	 */
+	public function getNamespace() : string {
+		return $this->ns;
 	}
 
 	/**
@@ -95,7 +107,7 @@ class ModuleSettings {
 	 * @param iterable $map
 	 * @phpstan-param iterable<string|int, string|iterable>
 	 *
-	 * @return string[]|\Generator
+	 * @return \NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings[]|\Generator
 	 */
 	public function files(string $root = "", iterable $map = null) : iterable {
 		foreach($map ?? $this->structure as $key => $value) {
@@ -106,7 +118,15 @@ class ModuleSettings {
 					yield $file;
 				}
 			} elseif(is_string($value)) {
-				yield $root . DIRECTORY_SEPARATOR . $value;
+				if(is_a($value, FileSettings::class, true)){
+					$class = $value;
+					$outName = $key;
+				} else{
+					$class = FileSettings::class;
+					$outName = $value;
+				}
+
+				yield new $class($this, $root . DIRECTORY_SEPARATOR . $outName);
 			}
 		}
 	}

@@ -34,6 +34,8 @@ declare(strict_types=1);
  *
  */
 
+use NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings;
+
 return [
 	".editorconfig",
 	".gitattributes",
@@ -55,7 +57,7 @@ return [
 		"Console" => [],
 		"Http" => [
 			"Controllers" => [
-				"Controller.php"
+				"Controller.php" => ClassFileSettings::class
 			],
 			"Middleware" => [],
 		],
