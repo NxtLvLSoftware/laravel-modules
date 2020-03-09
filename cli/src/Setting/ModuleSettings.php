@@ -27,8 +27,14 @@ class ModuleSettings {
 	 */
 	private $path;
 
-	public function __construct(string $path) {
+	/**
+	 * @var array
+	 */
+	private $structure;
+
+	public function __construct(string $path, ?array $structure = null) {
 		$this->path = $path;
+		$this->structure = $structure ?? $this->defaultStructure();
 	}
 
 	/**
@@ -50,7 +56,7 @@ class ModuleSettings {
 	 * @return string[]|\Generator
 	 */
 	public function directories(string $root = "", iterable $map = null) : iterable {
-		foreach($map ?? $this->defaultStructure() as $key => $value) {
+		foreach($map ?? $this->structure as $key => $value) {
 			// has nested paths or files
 			if(is_iterable($value)){
 				$path = $root . DIRECTORY_SEPARATOR . $key;
@@ -72,7 +78,7 @@ class ModuleSettings {
 	 * @return string[]|\Generator
 	 */
 	public function files(string $root = "", iterable $map = null) : iterable {
-		foreach($map ?? $this->defaultStructure() as $key => $value) {
+		foreach($map ?? $this->structure as $key => $value) {
 			// has nested paths or files
 			if(is_iterable($value)){
 				$path = $root . DIRECTORY_SEPARATOR . $key;

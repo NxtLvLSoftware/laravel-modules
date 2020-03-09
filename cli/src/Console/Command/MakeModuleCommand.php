@@ -17,31 +17,63 @@ declare(strict_types=1);
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Filesystem\Filesystem;
-use Illuminate\Support\Facades\File;
 use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleFilesystem;
 use NxtLvlSoftware\LaravelModulesCli\Generator\ModuleGenerator;
 use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
-use function app;
+use RuntimeException;
 use function getcwd;
+use function is_file;
+use function realpath;
 use const DIRECTORY_SEPARATOR;
 
 class MakeModuleCommand extends Command {
 	use RequiresModuleFilesystem;
 
-	protected $signature = "make:module {name}";
+	protected $signature = "make:module {name} {--s|structure=}";
 
 	protected $description = "Create a new module.";
 
 	public function handle() : void {
-		$path = getcwd() . DIRECTORY_SEPARATOR . $this->argument("name");
+		$name = $this->name();
+		$structure = $this->structure();
+		$path = getcwd() . DIRECTORY_SEPARATOR . $name;
+
 		$generator = new ModuleGenerator(
 			$this->argument("name"),
 			$this->createModuleFilesystem($path),
-			new ModuleSettings($path)
+			new ModuleSettings($path, $structure)
 		);
 		$generator->generate();
 	}
 
+	/**
+	 * Resolve the name argument value.
+	 */
+	private function name() : string {
+		return $this->argument("name");
+	}
+
+	/**
+	 * Resolve the structure option value.
+	 */
+	private function structure() : ?array {
+		$file = $this->option("structure");
+
+		if($file === null) {
+			return null; // not specified
+		}
+
+		$path = realpath($file);
+		if($path !== false and strpos($path, "/") === 0) {
+			return include $path; // absolute paths
+		}
+
+		$local = getcwd() . "/" . $file;
+		if(!is_file($local)) {
+			throw new RuntimeException("Could not find structure file '{$local}' in '" . getcwd() . "/'");
+		}
+
+		return include $local; // local paths
+	}
 
 }
