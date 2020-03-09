@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings $settings
+ */
+?>
 <?= '<?php' ?>
 
 use Illuminate\Support\Facades\Route;

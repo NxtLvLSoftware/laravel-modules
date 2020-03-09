@@ -17,15 +17,12 @@ declare(strict_types=1);
 namespace NxtLvlSoftware\LaravelModulesCli\Generator;
 
 use Illuminate\Contracts\Filesystem\Filesystem;
-use Illuminate\Support\Facades\View;
 use NxtLvlSoftware\LaravelModulesCli\Generator\Traits\GeneratesDirectories;
+use NxtLvlSoftware\LaravelModulesCli\Generator\Traits\GeneratesFiles;
 use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
-use function str_replace;
-use function var_dump;
-use const DIRECTORY_SEPARATOR;
 
 class ModuleGenerator extends AbstractGenerator {
-	use GeneratesDirectories;
+	use GeneratesDirectories, GeneratesFiles;
 
 	/**
 	 * @var string
@@ -59,9 +56,7 @@ class ModuleGenerator extends AbstractGenerator {
 			$this->generateDirectory($path);
 		}
 		foreach($this->settings->files() as $file) {
-			// TODO: generate file from template
-			$stub = str_replace([".php", ".js", ".sass", "/"], ["", "_js", "_sass", "."], trim($file, "/"));
-			$this->getFilesystem()->put($file, View::make($stub)->render());
+			$this->generateFile($file);
 		}
 	}
 

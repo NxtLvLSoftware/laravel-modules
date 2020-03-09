@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings $settings
+ */
+?>
 /node_modules
 /public/hot
 /public/storage
