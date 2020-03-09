@@ -34,7 +34,6 @@ class MakeModuleCommand extends Command {
 	protected $description = "Create a new module.";
 
 	public function handle() : void {
-		$this->info("oop");
 		$path = getcwd() . DIRECTORY_SEPARATOR . $this->argument("name");
 		$generator = new ModuleGenerator(
 			$this->argument("name"),

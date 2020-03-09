@@ -61,7 +61,6 @@ class ModuleGenerator extends AbstractGenerator {
 		foreach($this->settings->files() as $file) {
 			// TODO: generate file from template
 			$stub = str_replace([".php", ".js", ".sass", "/"], ["", "_js", "_sass", "."], trim($file, "/"));
-			var_dump($stub);
 			$this->getFilesystem()->put($file, View::make($stub)->render());
 		}
 	}
