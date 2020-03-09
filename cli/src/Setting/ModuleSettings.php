@@ -98,48 +98,7 @@ class ModuleSettings {
 	 * @phpstan-return iterable<string|int, string|iterable>
 	 */
 	protected function defaultStructure() : iterable {
-		return [
-			".editorconfig",
-			".gitattributes",
-			".gitignore",
-			"config" => [],
-			"database" => [
-				".gitignore",
-				"factories" => [],
-				"migrations" => [],
-				"seeds" => [
-					"DatabaseSeeder.php"
-				]
-			],
-			"routes" => [
-				"web.php",
-				"api.php"
-			],
-			"src" => [
-				"Console" => [],
-				"Http" => [
-					"Controllers" => [
-						"Controller.php"
-					],
-					"Middleware" => [],
-				],
-				"Models" => [],
-				"Providers" => [],
-			],
-			"resources" => [
-				"js" => [
-					"module.js"
-				],
-				"lang" => [
-					"en" => []
-				],
-				"sass" => [
-					"module.sass"
-				],
-				"views" => [],
-			],
-			"stubs" => []
-		];
+		return include __DIR__ . "/../../default_structure.php";
 	}
 
 }
