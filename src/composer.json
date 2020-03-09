@@ -1,0 +1,16 @@
+{
+    "name": "nxtlvlsoftware/laravel-modules-package",
+    "description": "The source package for laravel module development.",
+    "type": "project",
+    "license": "Unlicense",
+    "require": {
+        "laravel/framework": "^7.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "NxtLvlSoftware\\LaravelModules\\": ""
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
