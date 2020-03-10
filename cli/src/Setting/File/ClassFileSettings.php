@@ -59,7 +59,7 @@ class ClassFileSettings extends FileSettings {
 	private function resolveNamespace() : string {
 		$root = trim($this->getOutput(), "/src/"); // strip /src prefix from path
 		$base = substr($root, 0 , (strrpos($root, "."))); // strip file extension
-		$ns = str_replace("/", "\\", $base); // replace path separator with namespace separator
+		$ns = str_replace("/", "\\", dirname($base)); // replace path separator with namespace separator
 
 		return $this->getModuleSettings()->getNamespace() . "\\" . $ns; // prepend module namespace
 	}
