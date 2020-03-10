@@ -10,7 +10,7 @@ namespace {{ $settings->getNamespace() }};
 
 use Illuminate\Database\Eloquent\Model;
 
-class {{ $settings->getName() }} extends Model {
+class {{ $settings->getClassName() }} extends Model {
 
 	/**
 	 * The attributes that should be cast.

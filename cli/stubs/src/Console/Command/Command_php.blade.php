@@ -10,7 +10,7 @@ namespace {{ $settings->getNamespace() }};
 
 use Illuminate\Console\Command;
 
-class {{ $settings->getName() }}Command extends Command {
+class {{ $settings->getClassName() }} extends Command {
 
 	/**
 	 * The name and signature of the console command.
