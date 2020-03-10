@@ -66,7 +66,20 @@ class Kernel extends BaseKernel {
 		// register simple class template creation commands
 		$artisan->add(new MakeClassCommand("command", "Create a new console command.", "src/Console/Command/Command.php"));
 		$artisan->add(new MakeClassCommand("model", "Create a new eloquent model.", "src/Model/Model.php", false));
-		$artisan->add(new MakeClassCommand("provider", "Create a new service provider.", "src/Provider/ServiceProvider.php"));
+		$artisan->add((new MakeClassCommand("provider", "Create a new service provider.", "src/Provider/ServiceProvider.php"))
+			->after(static function(MakeClassCommand $command) : void {
+				$file = $command->getComposerSettings();
+				$file->merge([
+					"extra" => [
+						"laravel" => [
+							"providers" => [
+								$command->getFileSettings()->getFqn(),
+							],
+						],
+					],
+				]);
+				$file->toFile($command->getModuleDisk());
+			}));
 	}
 
 }
