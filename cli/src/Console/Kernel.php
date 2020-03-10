@@ -38,8 +38,9 @@ namespace NxtLvlSoftware\LaravelModulesCli\Console;
 
 use Illuminate\Console\Application as Artisan;
 use Illuminate\Foundation\Console\Kernel as BaseKernel;
-use NxtLvlSoftware\LaravelModulesCli\Console\Command\MakeClassCommand;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\GenerateFileCommand;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\MakeModuleCommand;
+use NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings;
 
 class Kernel extends BaseKernel {
 
@@ -64,10 +65,14 @@ class Kernel extends BaseKernel {
 		$artisan->add(new MakeModuleCommand());
 
 		// register simple class template creation commands
-		$artisan->add(new MakeClassCommand("command", "Create a new console command.", "src/Console/Command/Command.php"));
-		$artisan->add(new MakeClassCommand("model", "Create a new eloquent model.", "src/Model/Model.php", false));
-		$artisan->add((new MakeClassCommand("provider", "Create a new service provider.", "src/Provider/ServiceProvider.php"))
-			->after(static function(MakeClassCommand $command) : void {
+		$artisan->add(new GenerateFileCommand("command", "Create a new console command.", "src/Console/Command/Command.php", ClassFileSettings::class));
+		$artisan->add((new GenerateFileCommand("model", "Create a new eloquent model.", "src/Model/Model.php", ClassFileSettings::class))
+			->prependBase(false)
+		);
+		$artisan->add((new GenerateFileCommand("provider", "Create a new service provider.", "src/Provider/ServiceProvider.php", ClassFileSettings::class))
+			->prependBase(false)
+			->appendBase(true)
+			->after(static function(GenerateFileCommand $command) : void {
 				$file = $command->getComposerSettings();
 				$file->merge([
 					"extra" => [

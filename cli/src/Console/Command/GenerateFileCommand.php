@@ -37,52 +37,45 @@ declare(strict_types=1);
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
 use Illuminate\Support\Str;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasFileSettings;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasNameArgument;
 use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
-use NxtLvlSoftware\LaravelModulesCli\Setting\File\NamedClassFileSettings;
 
-class MakeClassCommand extends BaseCommand {
-	use HasNameArgument;
+/**
+ * Generic command implementation for generating files from blade templates.
+ */
+class GenerateFileCommand extends BaseCommand {
+	use HasFileSettings, HasNameArgument;
 
-	/**
-	 * @var string
-	 */
-	private $template;
+	protected function fallbackDefinition(string $signature, string $description) : void {
+		$this->signature = $this->signature ?? $signature;
+	}
 
-	/**
-	 * @var bool
-	 */
-	private $prependTemplateName;
-
-	/**
-	 * @var NamedClassFileSettings
-	 */
-	private $fileSettings;
-
-	public function __construct(string $name, string $description, string $template, bool $prependTemplateName = true) {
-		$this->signature = "make:" . Str::lower($name) . " {name : Name of the " . $name . "} {--p|path=} {--stubs= : Path to the stub directory to use}";
-		$this->description = $description;
-		$this->template = $template;
-		$this->prependTemplateName = $prependTemplateName;
+	public function __construct(string $name, string $description, string $template, ?string $fileSettings = null) {
+		$this->fallbackDefinition(
+			"make:" . Str::lower($name) . " {name : Name of the " . $name . "} {--p|path=} {--stubs= : Path to the stub directory to use}",
+			$description
+		);
 
 		parent::__construct();
+
+		$this->before(static function(GenerateFileCommand $command) use($template, $fileSettings) : void {
+			$command->createFileSettings($template, $fileSettings);
+		});
 	}
 
 	protected function exec() : void {
 		$this->stubs();
 
+		$this->fileSettings
+			->setName($this->name());
+
 		$generator = new FileGenerator(
 			$this->getModuleDisk(),
-			($this->fileSettings =  new NamedClassFileSettings(
-				$this->makeModuleSettings(),
-				$this->template
-			))->setName($this->name())->prependBase($this->prependTemplateName)
+			$this->fileSettings
 		);
-		$generator->generate();
-	}
 
-	public function getFileSettings() : NamedClassFileSettings {
-		return $this->fileSettings;
+		$generator->generate();
 	}
 
 }
