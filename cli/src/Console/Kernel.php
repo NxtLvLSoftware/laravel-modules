@@ -38,10 +38,12 @@ namespace NxtLvlSoftware\LaravelModulesCli\Console;
 
 use Illuminate\Console\Application as Artisan;
 use Illuminate\Foundation\Console\Kernel as BaseKernel;
+use Illuminate\Support\Str;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\GenerateFileCommand;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\GenerateModelFileCommand;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\MakeModuleCommand;
 use NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings;
+use function date;
 
 class Kernel extends BaseKernel {
 
@@ -70,8 +72,13 @@ class Kernel extends BaseKernel {
 		$artisan->add((new GenerateModelFileCommand("factory", "Create a new model factory.", "database/factories/Factory.php"))
 			->appendBase(true)
 		);
-		$artisan->add(new GenerateFileCommand("model", "Create a new eloquent model.", "src/Model/Model.php", ClassFileSettings::class)
+		$artisan->add((new GenerateModelFileCommand("migration", "Create a new model migration.", "database/migration/migration.php", ClassFileSettings::class))
+			->withNameFormat(static function(GenerateModelFileCommand $command) : string {
+				$command->getFileSettings()->setOutputClassName("Create" . Str::of($command->getModelFileSettings()->getClassName())->plural()->studly() . "Table");
+				return date('Y_m_d_His') . "_create_" . Str::of($command->getModelFileSettings()->getClassName())->lower()->plural() . "_table";
+			})
 		);
+		$artisan->add(new GenerateFileCommand("model", "Create a new eloquent model.", "src/Model/Model.php", ClassFileSettings::class));
 		$artisan->add((new GenerateFileCommand("provider", "Create a new service provider.", "src/Provider/ServiceProvider.php", ClassFileSettings::class))
 			->appendBase(true)
 			->after(static function(GenerateFileCommand $command) : void {
