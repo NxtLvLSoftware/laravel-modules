@@ -49,6 +49,7 @@ class GenerateFileCommand extends BaseCommand {
 
 	protected function fallbackDefinition(string $signature, string $description) : void {
 		$this->signature = $this->signature ?? $signature;
+		$this->description = $this->description ?? $description;
 	}
 
 	public function __construct(string $name, string $description, string $template, ?string $fileSettings = null) {
