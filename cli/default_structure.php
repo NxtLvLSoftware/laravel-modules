@@ -58,12 +58,12 @@ return [
 	"src" => [
 		"Console" => [],
 		"Http" => [
-			"Controllers" => [
+			"Controller" => [
 				"Controller.php" => ClassFileSettings::class
 			],
 			"Middleware" => [],
 		],
-		"Models" => [],
+		"Model" => [],
 		"Provider" => [],
 	],
 	"resources" => [
