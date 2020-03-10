@@ -110,7 +110,7 @@ class LaravelModulesServiceProvider extends AggregateServiceProvider {
 	 */
 	private function bindComposerJson() : void {
 		$this->app->bind(ComposerJsonFileSettings::class, static function(Application $app) : ComposerJsonFileSettings {
-			$instance = new ComposerJsonFileSettings(null, getcwd());
+			$instance = new ComposerJsonFileSettings(null, "composer.json");
 			$instance->fromFile($app->make(self::MODULE_DISK));
 
 			return $instance;
