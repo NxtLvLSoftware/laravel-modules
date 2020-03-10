@@ -37,7 +37,6 @@ declare(strict_types=1);
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
 use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
-use NxtLvlSoftware\LaravelModulesCli\Setting\File\ComposerJsonFileSettings;
 use NxtLvlSoftware\LaravelModulesCli\Setting\File\NamedClassFileSettings;
 use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
 use function getcwd;
@@ -51,9 +50,7 @@ class MakeServiceProviderCommand extends BaseCommand {
 	public function handle() : void {
 		$rootPath = getcwd();
 		$filesystem = $this->getModuleDisk();
-
-		$composer = new ComposerJsonFileSettings(null, $rootPath);
-		$composer->fromFile($filesystem);
+		$composer = $this->getComposerSettings();
 
 		$name = $this->name();
 

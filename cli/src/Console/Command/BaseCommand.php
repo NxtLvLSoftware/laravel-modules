@@ -39,6 +39,7 @@ namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use NxtLvlSoftware\LaravelModulesCli\Provider\LaravelModulesServiceProvider;
+use NxtLvlSoftware\LaravelModulesCli\Setting\File\ComposerJsonFileSettings;
 
 abstract class BaseCommand extends Command {
 
@@ -55,6 +56,13 @@ abstract class BaseCommand extends Command {
 		}
 
 		return $app->make(LaravelModulesServiceProvider::MODULE_DISK);
+	}
+
+	/**
+	 * Retrieve the composer json settings for the current directory.
+	 */
+	protected function getComposerSettings() : ComposerJsonFileSettings {
+		return $this->getApplication()->getLaravel()->make(ComposerJsonFileSettings::class);
 	}
 
 }
