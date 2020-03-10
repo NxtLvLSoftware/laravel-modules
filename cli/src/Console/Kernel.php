@@ -39,6 +39,8 @@ namespace NxtLvlSoftware\LaravelModulesCli\Console;
 use Illuminate\Console\Application as Artisan;
 use Illuminate\Foundation\Console\Kernel as BaseKernel;
 use Illuminate\Support\Str;
+use NxtLvlSoftware\LaravelModulesCli\Console\Build\CommandBuilder;
+use NxtLvlSoftware\LaravelModulesCli\Console\Build\GenerateFileCommandBuilder;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\GenerateFileCommand;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\GenerateModelFileCommand;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\MakeModuleCommand;
@@ -64,22 +66,27 @@ class Kernel extends BaseKernel {
 	 * Register all the commands provided by the kernel to the console application.
 	 */
 	public static function registerCommands(Artisan $artisan) : void {
-		// register normal class commands
-		$artisan->add(new MakeModuleCommand());
+		$builder = new CommandBuilder($artisan);
 
-		// register simple class template creation commands
-		$artisan->add(new GenerateFileCommand("command", "Create a new console command.", "src/Console/Command/Command.php", ClassFileSettings::class));
-		$artisan->add((new GenerateModelFileCommand("factory", "Create a new model factory.", "database/factories/Factory.php"))
-			->appendBase(true)
-		);
-		$artisan->add((new GenerateModelFileCommand("migration", "Create a new model migration.", "database/migration/migration.php", ClassFileSettings::class))
+		$builder->new(MakeModuleCommand::class);
+
+		self::registerGenerateCommands(GenerateFileCommandBuilder::from($builder));
+	}
+
+	/**
+	 * Register the file generation commands.
+	 */
+	private static function registerGenerateCommands(GenerateFileCommandBuilder $builder) : void {
+		$builder->file("command", "Create a new console command.", "src/Console/Command/Command.php", ClassFileSettings::class);
+		$builder->modelFile("factory", "Create a new model factory.", "database/factories/Factory.php")
+			->appendBase(true);
+		$builder->modelFile("migration", "Create a new model migration.", "database/migration/migration.php", ClassFileSettings::class)
 			->withNameFormat(static function(GenerateModelFileCommand $command) : string {
 				$command->getFileSettings()->setOutputClassName("Create" . Str::of($command->getModelFileSettings()->getClassName())->plural()->studly() . "Table");
 				return date('Y_m_d_His') . "_create_" . Str::of($command->getModelFileSettings()->getClassName())->lower()->plural() . "_table";
-			})
-		);
-		$artisan->add(new GenerateFileCommand("model", "Create a new eloquent model.", "src/Model/Model.php", ClassFileSettings::class));
-		$artisan->add((new GenerateFileCommand("provider", "Create a new service provider.", "src/Provider/ServiceProvider.php", ClassFileSettings::class))
+			});
+		$builder->file("model", "Create a new eloquent model.", "src/Model/Model.php", ClassFileSettings::class);
+		$builder->file("provider", "Create a new service provider.", "src/Provider/ServiceProvider.php", ClassFileSettings::class)
 			->appendBase(true)
 			->after(static function(GenerateFileCommand $command) : void {
 				$file = $command->getComposerSettings();
@@ -93,7 +100,7 @@ class Kernel extends BaseKernel {
 					],
 				]);
 				$file->toFile($command->getModuleDisk());
-			}));
+			});
 	}
 
 }
