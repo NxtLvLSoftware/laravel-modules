@@ -1,0 +1,16 @@
+{
+    "name": "jack/mypackage",
+    "description": "My new laravel module.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "laravel/framework": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MyPackage\\": "src"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
