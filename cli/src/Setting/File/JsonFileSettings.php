@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Copyright (C) 2020 NxtLvL Software Solutions
  *
- * @author Jack Noordhuis <me@jacknoordhuis.net>
+ * @author    Jack Noordhuis <me@jacknoordhuis.net>
  * @copyright NxtLvL Software Solutions
  *
  * This is free and unencumbered software released into the public domain.
@@ -34,49 +34,27 @@ declare(strict_types=1);
  *
  */
 
-use NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings;
-use NxtLvlSoftware\LaravelModulesCli\Setting\File\ComposerJsonFileSettings;
+namespace NxtLvlSoftware\LaravelModulesCli\Setting\File;
 
-return [
-	".editorconfig",
-	".gitattributes",
-	".gitignore",
-	"composer.json" => ComposerJsonFileSettings::class,
-	"config" => [],
-	"database" => [
-		".gitignore",
-		"factories" => [],
-		"migrations" => [],
-		"seeds" => [
-			"DatabaseSeeder.php"
-		]
-	],
-	"routes" => [
-		"web.php",
-		"api.php"
-	],
-	"src" => [
-		"Console" => [],
-		"Http" => [
-			"Controllers" => [
-				"Controller.php" => ClassFileSettings::class
-			],
-			"Middleware" => [],
-		],
-		"Models" => [],
-		"Providers" => [],
-	],
-	"resources" => [
-		"js" => [
-			"module.js"
-		],
-		"lang" => [
-			"en" => []
-		],
-		"sass" => [
-			"module.sass"
-		],
-		"views" => [],
-	],
-	"stubs" => []
-];
+use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use function json_decode;
+use function json_encode;
+use const JSON_HEX_QUOT;
+use const JSON_THROW_ON_ERROR;
+
+class JsonFileSettings extends FileSettings {
+
+	/**
+	 * @var array
+	 */
+	protected $data;
+
+	public function fromJson(string $data) : void {
+		$this->data = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
+	}
+
+	public function toJson() : string {
+		return json_encode($this->data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+	}
+
+}

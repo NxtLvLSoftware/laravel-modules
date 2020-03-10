@@ -46,6 +46,11 @@ class ModuleSettings {
 	/**
 	 * @var string
 	 */
+	private $name;
+
+	/**
+	 * @var string
+	 */
 	private $path;
 
 	/**
@@ -58,10 +63,15 @@ class ModuleSettings {
 	 */
 	private $structure;
 
-	public function __construct(string $path, string $namespace, ?array $structure = null) {
+	public function __construct(string $name, string $path, string $namespace, ?array $structure = null) {
+		$this->name = $name;
 		$this->path = $path;
 		$this->ns = $namespace;
 		$this->structure = $structure ?? $this->defaultStructure();
+	}
+
+	public function getName() : string {
+		return $this->name;
 	}
 
 	/**

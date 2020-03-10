@@ -63,7 +63,7 @@ class MakeModuleCommand extends Command {
 		$generator = new ModuleGenerator(
 			$this->argument("name"),
 			$this->createModuleFilesystem($path),
-			new ModuleSettings($path, $ns, $structure)
+			new ModuleSettings($name, $path, $ns, $structure)
 		);
 		$generator->generate();
 	}
