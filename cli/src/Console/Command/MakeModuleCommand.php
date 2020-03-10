@@ -51,7 +51,7 @@ class MakeModuleCommand extends BaseCommand {
 
 	protected $description = "Create a new service provider.";
 
-	public function handle() : void {
+	protected function exec() : void {
 		$this->stubs();
 
 		$name = $this->name();

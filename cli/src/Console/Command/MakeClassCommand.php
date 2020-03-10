@@ -63,7 +63,7 @@ class MakeClassCommand extends BaseCommand {
 		parent::__construct();
 	}
 
-	public function handle() : void {
+	protected function exec() : void {
 		$this->stubs();
 
 		$generator = new FileGenerator(

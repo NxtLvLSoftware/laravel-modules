@@ -48,9 +48,46 @@ abstract class BaseCommand extends Command {
 	use HasStubsOption;
 
 	/**
+	 * @var callable[]
+	 */
+	private $after = [];
+
+	/**
+	 * Handle the command execution.
+	 */
+	final public function handle() : void {
+		$this->exec();
+
+		foreach($this->after as $callable) {
+			($callable)($this);
+		}
+	}
+
+	/**
+	 * Execute the command.
+	 */
+	abstract protected function exec() : void;
+
+	/**
+	 * Register a callable to be executed after the command has run.
+	 */
+	public function after(callable $callable) : self {
+		$this->after[] = $callable;
+
+		return $this;
+	}
+
+	/**
+	 * Retrieve the composer json settings for the current directory.
+	 */
+	public function getComposerSettings() : ComposerJsonFileSettings {
+		return $this->getApplication()->getLaravel()->make(ComposerJsonFileSettings::class);
+	}
+
+	/**
 	 * Retrieve the module disk from the container.
 	 */
-	protected function getModuleDisk(string $path = null) : Filesystem {
+	public function getModuleDisk(string $path = null) : Filesystem {
 		$app = $this->getApplication()->getLaravel();
 
 		if($path !== null) {
@@ -60,13 +97,6 @@ abstract class BaseCommand extends Command {
 		}
 
 		return $app->make(LaravelModulesServiceProvider::MODULE_DISK);
-	}
-
-	/**
-	 * Retrieve the composer json settings for the current directory.
-	 */
-	protected function getComposerSettings() : ComposerJsonFileSettings {
-		return $this->getApplication()->getLaravel()->make(ComposerJsonFileSettings::class);
 	}
 
 	/**
