@@ -2,6 +2,8 @@
 /**
  * @var \NxtLvlSoftware\LaravelModulesCli\Setting\File\NamedClassFileSettings $settings
  */
+
+use Illuminate\Support\Str;
 ?>
 <?= '<?php' ?>
 
