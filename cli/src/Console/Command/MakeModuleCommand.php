@@ -47,7 +47,7 @@ use const DIRECTORY_SEPARATOR;
 class MakeModuleCommand extends BaseCommand {
 	use HasNamespaceArgument;
 
-	protected $signature = "make:module {name} {--namespace=} {--s|structure=}";
+	protected $signature = "make:module {name} {--namespace=} {--s|structure=} {--stubs= : Path to the stub directory to use}";
 
 	protected $description = "Create a new service provider.";
 
