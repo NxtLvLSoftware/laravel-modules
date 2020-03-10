@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Copyright (C) 2020 NxtLvL Software Solutions
  *
- * @author Jack Noordhuis <me@jacknoordhuis.net>
+ * @author    Jack Noordhuis <me@jacknoordhuis.net>
  * @copyright NxtLvL Software Solutions
  *
  * This is free and unencumbered software released into the public domain.
@@ -36,55 +36,32 @@ declare(strict_types=1);
 
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
-use NxtLvlSoftware\LaravelModulesCli\Generator\ModuleGenerator;
+use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
+use NxtLvlSoftware\LaravelModulesCli\Setting\File\NamedClassFileSettings;
 use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
-use RuntimeException;
 use function getcwd;
-use function is_file;
-use function realpath;
-use const DIRECTORY_SEPARATOR;
 
-class MakeModuleCommand extends MakeClassCommand {
+class MakeCommandCommand extends MakeClassCommand {
 
-	protected $signature = "make:module {name} {--namespace=} {--s|structure=}";
+	protected $signature = "make:command {name} {--p|path=}";
 
-	protected $description = "Create a new service provider.";
+	protected $description = "Create a new console command.";
 
 	public function handle() : void {
-		$name = $this->name();
-		$ns = $this->namespace();
-		$structure = $this->structure();
-		$path = getcwd() . DIRECTORY_SEPARATOR . $name;
+		$rootPath = getcwd();
+		$filesystem = $this->getModuleDisk();
+		$composer = $this->getComposerSettings();
 
-		$generator = new ModuleGenerator(
-			$this->argument("name"),
-			$this->getModuleDisk($path),
-			new ModuleSettings($name, $path, $ns, $structure)
+		$name = $this->name();
+
+		$generator = new FileGenerator(
+			$filesystem,
+			(new NamedClassFileSettings(
+				new ModuleSettings($composer->getPackage(), $rootPath, $composer->detectNamespace()),
+				"src/Console/Command/Command.php"
+			))->setName($name)
 		);
 		$generator->generate();
-	}
-
-	/**
-	 * Resolve the structure option value.
-	 */
-	private function structure() : ?array {
-		$file = $this->option("structure");
-
-		if($file === null) {
-			return null; // not specified
-		}
-
-		$path = realpath($file);
-		if($path !== false and strpos($path, "/") === 0) {
-			return include $path; // absolute paths
-		}
-
-		$local = getcwd() . "/" . $file;
-		if(!is_file($local)) {
-			throw new RuntimeException("Could not find structure file '{$local}' in '" . getcwd() . "/'");
-		}
-
-		return include $local; // local paths
 	}
 
 }

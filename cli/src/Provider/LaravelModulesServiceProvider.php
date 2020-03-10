@@ -40,6 +40,7 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Support\AggregateServiceProvider;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Config;
 use Illuminate\View\ViewServiceProvider;
 use NxtLvlSoftware\LaravelModulesCli\Setting\File\ComposerJsonFileSettings;
@@ -72,6 +73,8 @@ class LaravelModulesServiceProvider extends AggregateServiceProvider {
 		$this->bindStubViews();
 		$this->bindModuleDisk();
 		$this->bindComposerJson();
+
+		$this->bladeDirectives();
 	}
 
 	/**
@@ -106,8 +109,22 @@ class LaravelModulesServiceProvider extends AggregateServiceProvider {
 		$this->app->bind(ComposerJsonFileSettings::class, static function(Application $app) : ComposerJsonFileSettings {
 			$instance = new ComposerJsonFileSettings(null, getcwd());
 			$instance->fromFile($app->make(self::MODULE_DISK));
+
+			return $instance;
 		});
 	}
 
+	/**
+	 * Register the applications custom blade directives.
+	 */
+	protected function bladeDirectives() : void {
+		Blade::directive("var", static function (string $type) {
+			return "@var " . $type;
+		});
+
+		Blade::directive("return", static function (string $type) {
+			return "@return " . $type;
+		});
+	}
 
 }
