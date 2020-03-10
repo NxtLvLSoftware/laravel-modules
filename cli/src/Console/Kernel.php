@@ -39,6 +39,7 @@ namespace NxtLvlSoftware\LaravelModulesCli\Console;
 use Illuminate\Console\Application as Artisan;
 use Illuminate\Foundation\Console\Kernel as BaseKernel;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\GenerateFileCommand;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\GenerateModelFileCommand;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\MakeModuleCommand;
 use NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings;
 
@@ -66,6 +67,10 @@ class Kernel extends BaseKernel {
 
 		// register simple class template creation commands
 		$artisan->add(new GenerateFileCommand("command", "Create a new console command.", "src/Console/Command/Command.php", ClassFileSettings::class));
+		$artisan->add((new GenerateModelFileCommand("factory", "Create a new model factory.", "database/factories/Factory.php"))
+			->prependBase(false)
+			->appendBase(true)
+		);
 		$artisan->add((new GenerateFileCommand("model", "Create a new eloquent model.", "src/Model/Model.php", ClassFileSettings::class))
 			->prependBase(false)
 		);
