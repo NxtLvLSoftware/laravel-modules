@@ -77,9 +77,10 @@ class Kernel extends BaseKernel {
 	 * Register the file generation commands.
 	 */
 	private static function registerGenerateCommands(GenerateFileCommandBuilder $builder) : void {
-		$builder->file("command", "Create a new console command.", "src/Console/Command/Command.php", ClassFileSettings::class);
+		$builder->file("command", "Create a new console command.", "src/Console/Command/Command.php", ClassFileSettings::class)
+			->appendBase();
 		$builder->modelFile("factory", "Create a new model factory.", "database/factories/Factory.php")
-			->appendBase(true);
+			->appendBase();
 		$builder->modelFile("migration", "Create a new model migration.", "database/migration/migration.php", ClassFileSettings::class)
 			->withNameFormat(static function(GenerateModelFileCommand $command) : string {
 				$command->getFileSettings()->setOutputClassName("Create" . Str::of($command->getModelFileSettings()->getClassName())->plural()->studly() . "Table");

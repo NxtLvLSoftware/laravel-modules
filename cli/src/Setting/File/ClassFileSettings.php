@@ -65,7 +65,7 @@ class ClassFileSettings extends FileSettings {
 	}
 
 	public function getClassName() : string {
-		return $this->outputClassName ?? pathinfo($this->getOutput(), PATHINFO_FILENAME);
+		return $this->outputClassName ?? $this->getName();
 	}
 
 	public function setOutputClassName(string $name) : void {

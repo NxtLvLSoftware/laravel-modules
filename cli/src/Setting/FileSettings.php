@@ -122,8 +122,14 @@ class FileSettings {
 		return $this->template;
 	}
 
-	public function getName() : string {
-		return $this->name ?? "";
+	public function getName(bool $plain = false) : string {
+		$base = pathinfo($this->output, PATHINFO_FILENAME);
+
+		if($this->name === null) {
+			return $base;
+		}
+
+		return ($this->prependBase ? $base : "") . $this->name . ($this->appendBase ? $base : "");
 	}
 
 	public function setName(string $name) : self {
@@ -146,10 +152,9 @@ class FileSettings {
 
 	public function getOutput() : string {
 		$path = pathinfo($this->output, PATHINFO_DIRNAME);
-		$base = pathinfo($this->output, PATHINFO_FILENAME);
 		$ext = pathinfo($this->output, PATHINFO_EXTENSION);
 
-		return $path . "/" . ($this->prependBase ? $base : "") . $this->getName() . ($this->appendBase ? $base : "") . "." . $ext;
+		return $path . "/" . $this->getName() . "." . $ext;
 	}
 
 	/**
