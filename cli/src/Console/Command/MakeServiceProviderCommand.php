@@ -39,7 +39,7 @@ namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
 use NxtLvlSoftware\LaravelModulesCli\Setting\File\NamedClassFileSettings;
 
-class MakeServiceProviderCommand extends BaseCommand {
+class MakeServiceProviderCommand extends MakeClassCommand {
 
 	protected $signature = "make:provider {name} {--p|path=}";
 
