@@ -35,10 +35,10 @@
 namespace NxtLvlSoftware\LaravelModulesCli\Setting\File;
 
 use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
-use function dirname;
 use function pathinfo;
 use function str_replace;
 use function trim;
+use const PATHINFO_DIRNAME;
 use const PATHINFO_FILENAME;
 
 /**
@@ -68,9 +68,8 @@ class ClassFileSettings extends FileSettings {
 	}
 
 	private function resolveNamespace() : string {
-		$root = trim($this->getOutput(), "/src/"); // strip /src prefix from path
-		$base = substr($root, 0 , (strrpos($root, "."))); // strip file extension
-		$ns = str_replace("/", "\\", dirname($base)); // replace path separator with namespace separator
+		$root = trim(pathinfo($this->getOutput(), PATHINFO_DIRNAME) . "/", "/src/"); // strip /src prefix from path
+		$ns = str_replace("/", "\\", $root); // replace path separator with namespace separator
 
 		return $this->getModuleSettings()->getNamespace() . "\\" . $ns; // prepend module namespace
 	}
