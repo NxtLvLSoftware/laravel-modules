@@ -54,6 +54,11 @@ class MakeClassCommand extends BaseCommand {
 	 */
 	private $prependTemplateName;
 
+	/**
+	 * @var NamedClassFileSettings
+	 */
+	private $fileSettings;
+
 	public function __construct(string $name, string $description, string $template, bool $prependTemplateName = true) {
 		$this->signature = "make:" . Str::lower($name) . " {name : Name of the " . $name . "} {--p|path=} {--stubs= : Path to the stub directory to use}";
 		$this->description = $description;
@@ -68,12 +73,16 @@ class MakeClassCommand extends BaseCommand {
 
 		$generator = new FileGenerator(
 			$this->getModuleDisk(),
-			(new NamedClassFileSettings(
+			($this->fileSettings =  new NamedClassFileSettings(
 				$this->makeModuleSettings(),
 				$this->template
 			))->setName($this->name())->prependBase($this->prependTemplateName)
 		);
 		$generator->generate();
+	}
+
+	public function getFileSettings() : NamedClassFileSettings {
+		return $this->fileSettings;
 	}
 
 }
