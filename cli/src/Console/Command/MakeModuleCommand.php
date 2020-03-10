@@ -36,20 +36,16 @@ declare(strict_types=1);
 
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
-use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleFilesystem;
 use NxtLvlSoftware\LaravelModulesCli\Generator\ModuleGenerator;
 use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
 use RuntimeException;
 use function getcwd;
 use function is_file;
 use function realpath;
-use function var_dump;
 use const DIRECTORY_SEPARATOR;
 
-class MakeModuleCommand extends Command {
-	use RequiresModuleFilesystem;
+class MakeModuleCommand extends BaseCommand {
 
 	protected $signature = "make:module {name} {--namespace=} {--s|structure=}";
 
@@ -63,7 +59,7 @@ class MakeModuleCommand extends Command {
 
 		$generator = new ModuleGenerator(
 			$this->argument("name"),
-			$this->createModuleFilesystem($path),
+			$this->getModuleDisk($path),
 			new ModuleSettings($name, $path, $ns, $structure)
 		);
 		$generator->generate();

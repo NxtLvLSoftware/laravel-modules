@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Copyright (C) 2020 NxtLvL Software Solutions
  *
- * @author Jack Noordhuis <me@jacknoordhuis.net>
+ * @author    Jack Noordhuis <me@jacknoordhuis.net>
  * @copyright NxtLvL Software Solutions
  *
  * This is free and unencumbered software released into the public domain.
@@ -34,33 +34,27 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\Filesystem;
-use function app;
-use function getcwd;
+use NxtLvlSoftware\LaravelModulesCli\Provider\LaravelModulesServiceProvider;
 
-trait RequiresModuleFilesystem {
+abstract class BaseCommand extends Command {
 
 	/**
-	 * Create the disk for the module project directory.
-	 *
-	 * @param string|null $path
-	 *
-	 * @return \Illuminate\Contracts\Filesystem\Filesystem
+	 * Retrieve the module disk from the container.
 	 */
-	protected function createModuleFilesystem(string $path = null) : Filesystem {
-		if($path === null){
-			$path = getcwd();
+	protected function getModuleDisk(string $path = null) : Filesystem {
+		$app = $this->getApplication()->getLaravel();
+
+		if($path !== null) {
+			$app->extend(LaravelModulesServiceProvider::MODULE_DISK_PATH, static function() use($path) : string {
+				return $path;
+			});
 		}
 
-		/** @var \Illuminate\Filesystem\FilesystemManager $manager */
-		$manager = app("filesystem");
-		$manager->set("module", $filesystem = $manager->createLocalDriver([
-			"root" => $path
-		]));
-
-		return $filesystem;
+		return $app->make(LaravelModulesServiceProvider::MODULE_DISK);
 	}
 
 }

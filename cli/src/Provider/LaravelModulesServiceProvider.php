@@ -36,13 +36,19 @@ declare(strict_types=1);
 
 namespace NxtLvlSoftware\LaravelModulesCli\Provider;
 
+use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Support\AggregateServiceProvider;
 use Illuminate\Support\Facades\Config;
 use Illuminate\View\ViewServiceProvider;
-use const DIRECTORY_SEPARATOR;
+use NxtLvlSoftware\LaravelModulesCli\Setting\File\ComposerJsonFileSettings;
+use function getcwd;
 
 class LaravelModulesServiceProvider extends AggregateServiceProvider {
+
+	public const MODULE_DISK_PATH = "module_disk_path";
+	public const MODULE_DISK = "module_disk";
 
 	/**
 	 * List of providers the application requires.
@@ -62,7 +68,10 @@ class LaravelModulesServiceProvider extends AggregateServiceProvider {
 	 */
 	public function register() {
 		parent::register();
+
 		$this->bindStubViews();
+		$this->bindModuleDisk();
+		$this->bindComposerJson();
 	}
 
 	/**
@@ -72,5 +81,33 @@ class LaravelModulesServiceProvider extends AggregateServiceProvider {
 		Config::set("view.paths", [__DIR__ . "/../../stubs"]);
 		Config::set("view.compiled", __DIR__ . "/../../bootstrap/cache/views");
 	}
+
+	/**
+	 * Bind the module disk to the container.
+	 */
+	private function bindModuleDisk() : void {
+		$this->app->instance(self::MODULE_DISK_PATH, getcwd());
+
+		$this->app->bind(self::MODULE_DISK, static function(Application $app) : Filesystem {
+			/** @var \Illuminate\Filesystem\FilesystemManager $manager */
+			$manager = $app->make("filesystem");
+			$manager->set("module", $filesystem = $manager->createLocalDriver([
+				"root" => $app->make(self::MODULE_DISK_PATH)
+			]));
+
+			return $manager->disk("module");
+		});
+	}
+
+	/**
+	 * Bind the composer json file instance to the container if it exists.
+	 */
+	private function bindComposerJson() : void {
+		$this->app->bind(ComposerJsonFileSettings::class, static function(Application $app) : ComposerJsonFileSettings {
+			$instance = new ComposerJsonFileSettings(null, getcwd());
+			$instance->fromFile($app->make(self::MODULE_DISK));
+		});
+	}
+
 
 }
