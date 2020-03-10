@@ -37,16 +37,12 @@ declare(strict_types=1);
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleFilesystem;
 use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
-use NxtLvlSoftware\LaravelModulesCli\Generator\ModuleGenerator;
-use NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings;
 use NxtLvlSoftware\LaravelModulesCli\Setting\File\ComposerJsonFileSettings;
 use NxtLvlSoftware\LaravelModulesCli\Setting\File\NamedClassFileSettings;
 use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
 use function getcwd;
-use const DIRECTORY_SEPARATOR;
 
 class MakeServiceProviderCommand extends Command {
 	use RequiresModuleFilesystem;
@@ -63,7 +59,6 @@ class MakeServiceProviderCommand extends Command {
 		$composer->fromFile($filesystem);
 
 		$name = $this->name();
-		$path = $rootPath . "/src/" . $this->path();
 
 		$generator = new FileGenerator(
 			$this->createModuleFilesystem(getcwd()),
