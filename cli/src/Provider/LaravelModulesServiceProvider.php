@@ -60,6 +60,9 @@ class LaravelModulesServiceProvider extends AggregateServiceProvider {
 		// external packages that should be loaded before the rest of the app
 		FilesystemServiceProvider::class,
 		ViewServiceProvider::class,
+
+		// providers for this package
+		LaravelModulesCommandServiceProvider::class,
 	];
 
 	/**

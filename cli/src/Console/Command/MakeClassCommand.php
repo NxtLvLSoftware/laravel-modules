@@ -36,9 +36,41 @@ declare(strict_types=1);
 
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
+use Illuminate\Support\Str;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasNameArgument;
+use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
+use NxtLvlSoftware\LaravelModulesCli\Setting\File\NamedClassFileSettings;
 
-abstract class MakeClassCommand extends BaseCommand {
+class MakeClassCommand extends BaseCommand {
 	use HasNameArgument;
+
+	/**
+	 * @var string
+	 */
+	private $template;
+	/**
+	 * @var bool
+	 */
+	private $prependTemplateName;
+
+	public function __construct(string $name, string $description, string $template, bool $prependTemplateName = true) {
+		$this->signature = "make:" . Str::lower($name) . "  {name} {--p|path=}";
+		$this->description = $description;
+		$this->template = $template;
+		$this->prependTemplateName = $prependTemplateName;
+
+		parent::__construct();
+	}
+
+	public function handle() : void {
+		$generator = new FileGenerator(
+			$this->getModuleDisk(),
+			(new NamedClassFileSettings(
+				$this->makeModuleSettings(),
+				$this->template
+			))->setName($this->name())->prependBase($this->prependTemplateName)
+		);
+		$generator->generate();
+	}
 
 }

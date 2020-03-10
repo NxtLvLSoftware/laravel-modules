@@ -55,7 +55,7 @@ $app->useAppPath(__DIR__ . "/src");
 
 $app->singleton(
 	Illuminate\Contracts\Console\Kernel::class,
-	LaravelZero\Framework\Kernel::class
+	NxtLvlSoftware\LaravelModulesCli\Console\Kernel::class
 );
 
 $app->singleton(

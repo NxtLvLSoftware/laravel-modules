@@ -36,8 +36,9 @@ declare(strict_types=1);
 
 namespace NxtLvlSoftware\LaravelModulesCli\Provider;
 
-use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Console\Application;
 use Illuminate\Support\ServiceProvider;
+use NxtLvlSoftware\LaravelModulesCli\Console\Kernel;
 
 /**
  * Service provider for loading the module commands into laravel applications.
@@ -47,10 +48,9 @@ class LaravelModulesCommandServiceProvider extends ServiceProvider {
 	public function register() {
 		parent::register();
 
-		/** @var \Illuminate\Foundation\Console\Kernel $kernel */
-		$kernel = $this->app->make(Kernel::class);
-
-		$kernel->load(__DIR__ . "/../Console/Command");
+		Application::starting(static function(Application $artisan) : void {
+			Kernel::registerCommands($artisan);
+		});
 	}
 
 }

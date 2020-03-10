@@ -34,26 +34,39 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
+namespace NxtLvlSoftware\LaravelModulesCli\Console;
 
-use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
-use NxtLvlSoftware\LaravelModulesCli\Setting\File\NamedClassFileSettings;
+use Illuminate\Console\Application as Artisan;
+use Illuminate\Foundation\Console\Kernel as BaseKernel;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\MakeClassCommand;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\MakeModuleCommand;
 
-class MakeServiceProviderCommand extends MakeClassCommand {
+class Kernel extends BaseKernel {
 
-	protected $signature = "make:provider {name} {--p|path=}";
+	/**
+	 * The bootstrap classes for the application.
+	 *
+	 * @var array
+	 */
+	protected $bootstrappers = [
+		\Illuminate\Foundation\Bootstrap\LoadConfiguration::class,
+		\Illuminate\Foundation\Bootstrap\HandleExceptions::class,
+		\Illuminate\Foundation\Bootstrap\RegisterFacades::class,
+		\Illuminate\Foundation\Bootstrap\RegisterProviders::class,
+		\Illuminate\Foundation\Bootstrap\BootProviders::class,
+	];
 
-	protected $description = "Create a new module.";
+	/**
+	 * Register all the commands provided by the kernel to the console application.
+	 */
+	public static function registerCommands(Artisan $artisan) : void {
+		// register normal class commands
+		$artisan->add(new MakeModuleCommand());
 
-	public function handle() : void {
-		$generator = new FileGenerator(
-			$this->getModuleDisk(),
-			(new NamedClassFileSettings(
-				$this->makeModuleSettings(),
-				"src/Provider/ServiceProvider.php"
-			))->setName($this->name())
-		);
-		$generator->generate();
+		// register simple class template creation commands
+		$artisan->add(new MakeClassCommand("command", "Create a new console command.", "src/Console/Command/Command.php"));
+		$artisan->add(new MakeClassCommand("model", "Create a new eloquent model.", "src/Model/Model.php", false));
+		$artisan->add(new MakeClassCommand("provider", "Create a new service provider.", "src/Provider/ServiceProvider.php"));
 	}
 
 }
