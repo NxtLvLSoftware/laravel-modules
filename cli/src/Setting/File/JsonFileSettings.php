@@ -37,9 +37,11 @@ declare(strict_types=1);
 namespace NxtLvlSoftware\LaravelModulesCli\Setting\File;
 
 use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use function in_array;
+use function is_int;
+use function is_iterable;
 use function json_decode;
 use function json_encode;
-use const JSON_HEX_QUOT;
 use const JSON_THROW_ON_ERROR;
 
 class JsonFileSettings extends FileSettings {
@@ -55,6 +57,41 @@ class JsonFileSettings extends FileSettings {
 
 	public function toJson() : string {
 		return json_encode($this->data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+	}
+
+	/**
+	 * Merge an array of data with the current data. By default no values will be overwritten or duplicated.
+	 *
+	 * @param array      $data     The data to set.
+	 * @param bool       $override If the values should be overwritten.
+	 * @param array|null $nested   Nested data value, only internally when the method is called recursively.
+	 */
+	public function merge(array $data, bool $override = false, array &$nested = null) : void {
+		if($nested === null) {
+			$nested = &$this->data; // set to a reference of the current data
+		}
+
+		foreach($data as $key => $value) {
+			if(is_iterable($value)) {
+				if(!isset($nested[$key])) {
+					$nested[$key] = []; // make sure empty arrays/objects exist in case we need to set children
+				}
+
+				$this->merge($value, $override, $nested[$key]); // call method recursively to set children
+				continue;
+			}
+
+			if(is_int($key) and !in_array($value, $nested, true)) { // value is adding to a simple array, add if value doesn't already exist
+				$nested[] = &$value; // add to an array
+				continue;
+			}
+
+			if(isset($nested[$key]) and !$override) { // value is an object property and it already exists, skip if we aren't overwriting
+				continue;
+			}
+
+			$nested[$key] = $value; // set the value
+		}
 	}
 
 }
