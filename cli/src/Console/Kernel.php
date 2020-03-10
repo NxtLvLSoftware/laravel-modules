@@ -68,14 +68,11 @@ class Kernel extends BaseKernel {
 		// register simple class template creation commands
 		$artisan->add(new GenerateFileCommand("command", "Create a new console command.", "src/Console/Command/Command.php", ClassFileSettings::class));
 		$artisan->add((new GenerateModelFileCommand("factory", "Create a new model factory.", "database/factories/Factory.php"))
-			->prependBase(false)
 			->appendBase(true)
 		);
-		$artisan->add((new GenerateFileCommand("model", "Create a new eloquent model.", "src/Model/Model.php", ClassFileSettings::class))
-			->prependBase(false)
+		$artisan->add(new GenerateFileCommand("model", "Create a new eloquent model.", "src/Model/Model.php", ClassFileSettings::class)
 		);
 		$artisan->add((new GenerateFileCommand("provider", "Create a new service provider.", "src/Provider/ServiceProvider.php", ClassFileSettings::class))
-			->prependBase(false)
 			->appendBase(true)
 			->after(static function(GenerateFileCommand $command) : void {
 				$file = $command->getComposerSettings();

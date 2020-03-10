@@ -52,7 +52,7 @@ trait HasFileSettings {
 	/**
 	 * @var bool
 	 */
-	protected $prependBase = true;
+	protected $prependBase = false;
 
 	/**
 	 * @var bool
