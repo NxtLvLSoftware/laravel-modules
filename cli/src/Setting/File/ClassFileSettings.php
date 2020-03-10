@@ -51,6 +51,11 @@ class ClassFileSettings extends FileSettings {
 	 */
 	private $ns;
 
+	/**
+	 * @var string|null
+	 */
+	private $outputClassName = null;
+
 	protected function init() : void {
 		$this->ns = $this->resolveNamespace();
 	}
@@ -60,7 +65,11 @@ class ClassFileSettings extends FileSettings {
 	}
 
 	public function getClassName() : string {
-		return pathinfo($this->getOutput(), PATHINFO_FILENAME);
+		return $this->outputClassName ?? pathinfo($this->getOutput(), PATHINFO_FILENAME);
+	}
+
+	public function setOutputClassName(string $name) : void {
+		$this->outputClassName = $name;
 	}
 
 	public function getFqn() : string {
