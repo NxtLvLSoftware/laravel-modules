@@ -34,49 +34,13 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Setting\File;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Exception;
 
-use function basename;
-use function dirname;
+use RuntimeException;
 
-class NamedClassFileSettings extends ClassFileSettings {
-
-	/**
-	 * @var string|null
-	 */
-	private $name;
-
-	/**
-	 * @var bool
-	 */
-	private $prependBase = true;
-
-	public function getName() : ?string {
-		return $this->name;
-	}
-
-	public function setName(string $name) : self {
-		$this->name = $name;
-
-		return $this;
-	}
-
-	public function getClassName() : string {
-		return $this->name . ($this->prependBase ? basename(parent::getOutput()) : ".php");
-	}
-
-	public function getFqn() : string {
-		return $this->getNamespace() . "\\" . $this->getClassName();
-	}
-
-	public function prependBase(bool $prepend = true) : self {
-		$this->prependBase = $prepend;
-
-		return $this;
-	}
-
-	public function getOutput() : string {
-		return dirname(parent::getOutput()) . "/" . $this->getClassName();
-	}
+/**
+ * Thrown when a model cannot be resolved for a command.
+ */
+class ModelNotFoundException extends RuntimeException {
 
 }
