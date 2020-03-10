@@ -53,4 +53,5 @@ trait HasNamespaceArgument {
 
 		return Str::ucfirst($this->name());
 	}
+
 }

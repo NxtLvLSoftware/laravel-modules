@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Copyright (C) 2020 NxtLvL Software Solutions
  *
- * @author Jack Noordhuis <me@jacknoordhuis.net>
+ * @author    Jack Noordhuis <me@jacknoordhuis.net>
  * @copyright NxtLvL Software Solutions
  *
  * This is free and unencumbered software released into the public domain.
@@ -34,60 +34,39 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
 
-use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasNamespaceArgument;
-use NxtLvlSoftware\LaravelModulesCli\Generator\ModuleGenerator;
+use Illuminate\Support\Facades\Config;
 use RuntimeException;
 use function getcwd;
 use function is_file;
 use function realpath;
-use const DIRECTORY_SEPARATOR;
+use function strpos;
 
-class MakeModuleCommand extends BaseCommand {
-	use HasNamespaceArgument;
-
-	protected $signature = "make:module {name} {--namespace=} {--s|structure=}";
-
-	protected $description = "Create a new service provider.";
-
-	public function handle() : void {
-		$this->stubs();
-
-		$name = $this->name();
-		$ns = $this->namespace();
-		$structure = $this->structure();
-		$path = getcwd() . DIRECTORY_SEPARATOR . $name;
-
-		$generator = new ModuleGenerator(
-			$name,
-			$this->getModuleDisk($path),
-			$this->makeModuleSettings($name, $path, $ns, $structure)
-		);
-		$generator->generate();
-	}
+trait HasStubsOption {
 
 	/**
-	 * Resolve the structure option value.
+	 * Resolve the namespace option value.
 	 */
-	private function structure() : ?array {
-		$file = $this->option("structure");
-
-		if($file === null) {
-			return null; // not specified
+	protected function stubs() : void {
+		$opt = $this->option("stubs");
+		if($opt === null) {
+			return;
 		}
 
-		$path = realpath($file);
-		if($path !== false and strpos($path, "/") === 0) {
-			return include $path; // absolute paths
+		$absolute = realpath($opt);
+		if($absolute !== false and strpos($absolute, "/") === 0) {
+			Config::prepend("view.paths", $absolute); // prepend absolute path
+			return;
 		}
 
-		$local = getcwd() . "/" . $file;
-		if(!is_file($local)) {
-			throw new RuntimeException("Could not find structure file '{$local}' in '" . getcwd() . "/'");
+		$local = getcwd() . "/" . $opt;
+		if(is_file($local)) {
+			Config::prepend("view.paths", $local);
+			return;
 		}
 
-		return include $local; // local paths
+		throw new RuntimeException("Could not find structure file '{$local}' in '" . getcwd() . "/'");
 	}
 
 }

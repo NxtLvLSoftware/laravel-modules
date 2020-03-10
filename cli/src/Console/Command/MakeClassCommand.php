@@ -48,13 +48,14 @@ class MakeClassCommand extends BaseCommand {
 	 * @var string
 	 */
 	private $template;
+
 	/**
 	 * @var bool
 	 */
 	private $prependTemplateName;
 
 	public function __construct(string $name, string $description, string $template, bool $prependTemplateName = true) {
-		$this->signature = "make:" . Str::lower($name) . "  {name} {--p|path=}";
+		$this->signature = "make:" . Str::lower($name) . " {name : Name of the " . $name . "} {--p|path=} {--stubs= : Path to the stub directory to use}";
 		$this->description = $description;
 		$this->template = $template;
 		$this->prependTemplateName = $prependTemplateName;
@@ -63,6 +64,8 @@ class MakeClassCommand extends BaseCommand {
 	}
 
 	public function handle() : void {
+		$this->stubs();
+
 		$generator = new FileGenerator(
 			$this->getModuleDisk(),
 			(new NamedClassFileSettings(

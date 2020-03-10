@@ -38,12 +38,14 @@ namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasStubsOption;
 use NxtLvlSoftware\LaravelModulesCli\Provider\LaravelModulesServiceProvider;
 use NxtLvlSoftware\LaravelModulesCli\Setting\File\ComposerJsonFileSettings;
 use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
 use function getcwd;
 
 abstract class BaseCommand extends Command {
+	use HasStubsOption;
 
 	/**
 	 * Retrieve the module disk from the container.
