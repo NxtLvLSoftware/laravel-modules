@@ -86,7 +86,10 @@ class Kernel extends BaseKernel {
 				$command->getFileSettings()->setOutputClassName("Create" . Str::of($command->getModelFileSettings()->getClassName())->plural()->studly() . "Table");
 				return date('Y_m_d_His') . "_create_" . Str::of($command->getModelFileSettings()->getClassName())->lower()->plural() . "_table";
 			});
-		$builder->file("model", "Create a new eloquent model.", "src/Model/Model.php", ClassFileSettings::class);
+		$builder->file("model", "Create a new eloquent model.", "src/Model/Model.php", ClassFileSettings::class)
+			->withNameFormat(static function(GenerateFileCommand $command, string $input) : string {
+				return (string) Str::of($input)->studly();
+			});
 		$builder->file("provider", "Create a new service provider.", "src/Provider/ServiceProvider.php", ClassFileSettings::class)
 			->appendBase(true)
 			->after(static function(GenerateFileCommand $command) : void {
