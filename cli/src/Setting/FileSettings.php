@@ -70,7 +70,7 @@ class FileSettings {
 	private $view;
 
 	/**
-	 * @var string|null
+	 * @var string
 	 */
 	protected $name = null;
 
@@ -91,6 +91,7 @@ class FileSettings {
 	final public function __construct(?ModuleSettings $moduleSettings, string $path) {
 		$this->moduleSettings = $moduleSettings;
 		$this->output = $path;
+		$this->name = pathinfo($this->output, PATHINFO_FILENAME);
 		$this->template = $this->resolveTemplateName();
 
 		$this->init();
