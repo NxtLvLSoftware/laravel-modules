@@ -50,12 +50,21 @@ abstract class BaseCommand extends Command {
 	/**
 	 * @var callable[]
 	 */
+	private $before = [];
+
+	/**
+	 * @var callable[]
+	 */
 	private $after = [];
 
 	/**
 	 * Handle the command execution.
 	 */
 	final public function handle() : void {
+		foreach($this->before as $callable) {
+			($callable)($this);
+		}
+
 		$this->exec();
 
 		foreach($this->after as $callable) {
@@ -67,6 +76,15 @@ abstract class BaseCommand extends Command {
 	 * Execute the command.
 	 */
 	abstract protected function exec() : void;
+
+	/**
+	 * Register a callable to be executed before the command has run.
+	 */
+	public function before(callable $callable) : self {
+		$this->before[] = $callable;
+
+		return $this;
+	}
 
 	/**
 	 * Register a callable to be executed after the command has run.
