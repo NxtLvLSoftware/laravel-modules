@@ -36,20 +36,37 @@ declare(strict_types=1);
 
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
 
-trait HasNameArgument {
+trait HasNamedCallbacks {
 
 	/**
-	 * Resolve the name argument value.
+	 * @var callable[]
 	 */
-	protected function name() : string {
-		return $this->argument("name");
+	private $namedCallbacks = [];
+
+	/**
+	 * Set a the value of a named callback.
+	 *
+	 * @param string   $for
+	 * @param callable $callback
+	 */
+	protected function setNamedCallback(string $for, callable $callback) : void {
+		$this->namedCallbacks[$for] = $callback;
 	}
 
 	/**
-	 * Resolve the output file name.
+	 * Invoke a named callback.
+	 *
+	 * @param string $name
+	 * @param mixed  ...$params
+	 *
+	 * @return string|void
 	 */
-	protected function outputName() : string {
-		return $this->callNamedCallback(self::CALLBACK_NAME, $this) ?: $this->name();
+	protected function callNamedCallback(string $name, ...$params) {
+		if(!isset($this->namedCallbacks[$name])){
+			return;
+		}
+
+		return ($this->namedCallbacks[$name])(...$params);
 	}
 
 }

@@ -38,6 +38,7 @@ namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
 use Illuminate\Support\Str;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasFileSettings;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasNamedCallbacks;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasNameArgument;
 use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
 
@@ -45,7 +46,9 @@ use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
  * Generic command implementation for generating files from blade templates.
  */
 class GenerateFileCommand extends BaseCommand {
-	use HasFileSettings, HasNameArgument;
+	use HasNamedCallbacks, HasFileSettings, HasNameArgument;
+
+	protected const CALLBACK_NAME = "format_name";
 
 	protected function fallbackDefinition(string $signature, string $description) : void {
 		$this->signature = $this->signature ?? $signature;
@@ -69,7 +72,7 @@ class GenerateFileCommand extends BaseCommand {
 		$this->stubs();
 
 		$this->fileSettings
-			->setName($this->name());
+			->setName($this->outputName());
 
 		$generator = new FileGenerator(
 			$this->getModuleDisk(),
@@ -77,6 +80,20 @@ class GenerateFileCommand extends BaseCommand {
 		);
 
 		$generator->generate();
+	}
+
+	/**
+	 * Callback that is called when resolving the output file name. Can be used
+	 * to set the output file name or just listen for name resolving.
+	 *
+	 * @param callable $callback
+	 *
+	 * @return static
+	 */
+	public function withNameFormat(callable $callback) : self {
+		$this->setNamedCallback(self::CALLBACK_NAME, $callback);
+
+		return $this;
 	}
 
 }
