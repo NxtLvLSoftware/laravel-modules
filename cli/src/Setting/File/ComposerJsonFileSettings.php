@@ -42,6 +42,7 @@ use function data_get;
 use function explode;
 use function get_current_user;
 use function strtolower;
+use function trim;
 
 class ComposerJsonFileSettings extends JsonFileSettings {
 
@@ -100,6 +101,10 @@ class ComposerJsonFileSettings extends JsonFileSettings {
 	private $cachedNs = null;
 
 	protected function init() : void {
+		if($this->getModuleSettings() === null) {
+			return;
+		}
+
 		$this->vendor = strtolower(get_current_user());
 		$this->package = strtolower($this->getModuleSettings()->getName());
 		$this->autoload["psr-4"][$this->getModuleSettings()->getNamespace() . "\\"] = "src";
@@ -245,7 +250,7 @@ class ComposerJsonFileSettings extends JsonFileSettings {
 		foreach ((array) data_get($this->data, "autoload.psr-4") as $namespace => $path) {
 			foreach ((array) $path as $pathChoice) {
 				if (rtrim(trim($pathChoice, "/"), "/") === "src") {
-					return $this->cachedNs = $namespace;
+					return $this->cachedNs = trim($namespace, "\\");
 				}
 			}
 		}

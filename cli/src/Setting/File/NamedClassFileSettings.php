@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Copyright (C) 2020 NxtLvL Software Solutions
  *
- * @author Jack Noordhuis <me@jacknoordhuis.net>
+ * @author    Jack Noordhuis <me@jacknoordhuis.net>
  * @copyright NxtLvL Software Solutions
  *
  * This is free and unencumbered software released into the public domain.
@@ -34,49 +34,33 @@ declare(strict_types=1);
  *
  */
 
-use NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings;
-use NxtLvlSoftware\LaravelModulesCli\Setting\File\ComposerJsonFileSettings;
+namespace NxtLvlSoftware\LaravelModulesCli\Setting\File;
 
-return [
-	".editorconfig",
-	".gitattributes",
-	".gitignore",
-	"composer.json" => ComposerJsonFileSettings::class,
-	"config" => [],
-	"database" => [
-		".gitignore",
-		"factories" => [],
-		"migrations" => [],
-		"seeds" => [
-			"DatabaseSeeder.php"
-		]
-	],
-	"routes" => [
-		"web.php",
-		"api.php"
-	],
-	"src" => [
-		"Console" => [],
-		"Http" => [
-			"Controllers" => [
-				"Controller.php" => ClassFileSettings::class
-			],
-			"Middleware" => [],
-		],
-		"Models" => [],
-		"Provider" => [],
-	],
-	"resources" => [
-		"js" => [
-			"module.js"
-		],
-		"lang" => [
-			"en" => []
-		],
-		"sass" => [
-			"module.sass"
-		],
-		"views" => [],
-	],
-	"stubs" => []
-];
+use function basename;
+use function dirname;
+
+class NamedClassFileSettings extends ClassFileSettings {
+
+	/**
+	 * @var string|null
+	 */
+	private $name;
+
+	public function getName() : ?string {
+		return $this->name;
+	}
+
+	public function setName(string $name) : self {
+		$this->name = $name;
+
+		return $this;
+	}
+
+	public function getOutput() : string {
+		$output = parent::getOutput();
+		$base = basename($output);
+
+		return dirname($output) . "/" .  $this->name . $base;
+	}
+
+}

@@ -56,7 +56,7 @@ class FileSettings {
 	private $output;
 
 	/**
-	 * @var \NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings
+	 * @var \NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings|null
 	 */
 	private $moduleSettings;
 
@@ -64,7 +64,7 @@ class FileSettings {
 	 * Constructor is final to prevent modifying the signature. Use @link init() to
 	 * perform actions during construction.
 	 */
-	final public function __construct(ModuleSettings $moduleSettings, string $path) {
+	final public function __construct(?ModuleSettings $moduleSettings, string $path) {
 		$this->moduleSettings = $moduleSettings;
 		$this->output = $path;
 		$this->template = $this->resolveTemplateName();
@@ -79,7 +79,7 @@ class FileSettings {
 		//
 	}
 
-	public function getModuleSettings() : ModuleSettings {
+	public function getModuleSettings() : ?ModuleSettings {
 		return $this->moduleSettings;
 	}
 

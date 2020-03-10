@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Copyright (C) 2020 NxtLvL Software Solutions
  *
- * @author Jack Noordhuis <me@jacknoordhuis.net>
+ * @author    Jack Noordhuis <me@jacknoordhuis.net>
  * @copyright NxtLvL Software Solutions
  *
  * This is free and unencumbered software released into the public domain.
@@ -39,32 +39,38 @@ namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleFilesystem;
+use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
 use NxtLvlSoftware\LaravelModulesCli\Generator\ModuleGenerator;
+use NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings;
+use NxtLvlSoftware\LaravelModulesCli\Setting\File\ComposerJsonFileSettings;
+use NxtLvlSoftware\LaravelModulesCli\Setting\File\NamedClassFileSettings;
 use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
-use RuntimeException;
 use function getcwd;
-use function is_file;
-use function realpath;
-use function var_dump;
 use const DIRECTORY_SEPARATOR;
 
-class MakeModuleCommand extends Command {
+class MakeServiceProviderCommand extends Command {
 	use RequiresModuleFilesystem;
 
-	protected $signature = "make:module {name} {--namespace=} {--s|structure=}";
+	protected $signature = "make:provider {name} {--p|path=}";
 
 	protected $description = "Create a new module.";
 
 	public function handle() : void {
-		$name = $this->name();
-		$ns = $this->namespace();
-		$structure = $this->structure();
-		$path = getcwd() . DIRECTORY_SEPARATOR . $name;
+		$rootPath = getcwd();
+		$filesystem = $this->createModuleFilesystem($rootPath);
 
-		$generator = new ModuleGenerator(
-			$this->argument("name"),
-			$this->createModuleFilesystem($path),
-			new ModuleSettings($name, $path, $ns, $structure)
+		$composer = new ComposerJsonFileSettings(null, $rootPath);
+		$composer->fromFile($filesystem);
+
+		$name = $this->name();
+		$path = $rootPath . "/src/" . $this->path();
+
+		$generator = new FileGenerator(
+			$this->createModuleFilesystem(getcwd()),
+			(new NamedClassFileSettings(
+				new ModuleSettings($composer->getPackage(), $rootPath, $composer->detectNamespace()),
+				"src/Provider/ServiceProvider.php"
+			))->setName($name)
 		);
 		$generator->generate();
 	}
@@ -79,37 +85,14 @@ class MakeModuleCommand extends Command {
 	/**
 	 * Resolve the namespace option value.
 	 */
-	private function namespace() : string {
-		$opt = $this->option("namespace");
+	private function path() : string {
+		$opt = $this->option("path");
 
 		if($opt !== null) {
 			return $opt;
 		}
 
-		return Str::ucfirst($this->name());
-	}
-
-	/**
-	 * Resolve the structure option value.
-	 */
-	private function structure() : ?array {
-		$file = $this->option("structure");
-
-		if($file === null) {
-			return null; // not specified
-		}
-
-		$path = realpath($file);
-		if($path !== false and strpos($path, "/") === 0) {
-			return include $path; // absolute paths
-		}
-
-		$local = getcwd() . "/" . $file;
-		if(!is_file($local)) {
-			throw new RuntimeException("Could not find structure file '{$local}' in '" . getcwd() . "/'");
-		}
-
-		return include $local; // local paths
+		return "Provider";
 	}
 
 }
