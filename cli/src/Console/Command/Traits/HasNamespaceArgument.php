@@ -34,26 +34,23 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
 
-use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
-use NxtLvlSoftware\LaravelModulesCli\Setting\File\NamedClassFileSettings;
+use Illuminate\Support\Str;
 
-class MakeServiceProviderCommand extends BaseCommand {
+trait HasNamespaceArgument {
+	use HasNameArgument;
 
-	protected $signature = "make:provider {name} {--p|path=}";
+	/**
+	 * Resolve the namespace option value.
+	 */
+	private function namespace() : string {
+		$opt = $this->option("namespace");
 
-	protected $description = "Create a new module.";
+		if($opt !== null) {
+			return $opt;
+		}
 
-	public function handle() : void {
-		$generator = new FileGenerator(
-			$this->getModuleDisk(),
-			(new NamedClassFileSettings(
-				$this->makeModuleSettings(),
-				"src/Provider/ServiceProvider.php"
-			))->setName($this->name())
-		);
-		$generator->generate();
+		return Str::ucfirst($this->name());
 	}
-
 }

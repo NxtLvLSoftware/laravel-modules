@@ -38,8 +38,6 @@ namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
 use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
 use NxtLvlSoftware\LaravelModulesCli\Setting\File\NamedClassFileSettings;
-use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
-use function getcwd;
 
 class MakeCommandCommand extends MakeClassCommand {
 
@@ -48,18 +46,12 @@ class MakeCommandCommand extends MakeClassCommand {
 	protected $description = "Create a new console command.";
 
 	public function handle() : void {
-		$rootPath = getcwd();
-		$filesystem = $this->getModuleDisk();
-		$composer = $this->getComposerSettings();
-
-		$name = $this->name();
-
 		$generator = new FileGenerator(
-			$filesystem,
+			$this->getModuleDisk(),
 			(new NamedClassFileSettings(
-				new ModuleSettings($composer->getPackage(), $rootPath, $composer->detectNamespace()),
+				$this->makeModuleSettings(),
 				"src/Console/Command/Command.php"
-			))->setName($name)
+			))->setName($this->name())
 		);
 		$generator->generate();
 	}

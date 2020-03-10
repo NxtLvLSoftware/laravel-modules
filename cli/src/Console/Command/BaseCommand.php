@@ -40,6 +40,8 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use NxtLvlSoftware\LaravelModulesCli\Provider\LaravelModulesServiceProvider;
 use NxtLvlSoftware\LaravelModulesCli\Setting\File\ComposerJsonFileSettings;
+use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
+use function getcwd;
 
 abstract class BaseCommand extends Command {
 
@@ -63,6 +65,17 @@ abstract class BaseCommand extends Command {
 	 */
 	protected function getComposerSettings() : ComposerJsonFileSettings {
 		return $this->getApplication()->getLaravel()->make(ComposerJsonFileSettings::class);
+	}
+
+	/**
+	 * Create a module settings instance from the provided parameters or attempt to construct it from the detected composer.json.
+	 */
+	protected function makeModuleSettings(string $path = null, string $name = null, string $namespace = null, array $structure = null) : ModuleSettings {
+		if($name === null or $namespace === null) {
+			$composer = $this->getComposerSettings();
+		}
+
+		return new ModuleSettings($name ?? $composer->getPackage(), $path ?? getcwd(),$namespace ?? $composer->detectNamespace(), $structure);
 	}
 
 }

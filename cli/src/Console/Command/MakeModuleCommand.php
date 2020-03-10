@@ -36,15 +36,16 @@ declare(strict_types=1);
 
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasNamespaceArgument;
 use NxtLvlSoftware\LaravelModulesCli\Generator\ModuleGenerator;
-use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
 use RuntimeException;
 use function getcwd;
 use function is_file;
 use function realpath;
 use const DIRECTORY_SEPARATOR;
 
-class MakeModuleCommand extends MakeClassCommand {
+class MakeModuleCommand extends BaseCommand {
+	use HasNamespaceArgument;
 
 	protected $signature = "make:module {name} {--namespace=} {--s|structure=}";
 
@@ -57,9 +58,9 @@ class MakeModuleCommand extends MakeClassCommand {
 		$path = getcwd() . DIRECTORY_SEPARATOR . $name;
 
 		$generator = new ModuleGenerator(
-			$this->argument("name"),
+			$name,
 			$this->getModuleDisk($path),
-			new ModuleSettings($name, $path, $ns, $structure)
+			$this->makeModuleSettings($name, $path, $ns, $structure)
 		);
 		$generator->generate();
 	}

@@ -36,13 +36,9 @@ declare(strict_types=1);
 
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
-abstract class MakeClassCommand extends BaseCommand {
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasNameArgument;
 
-	/**
-	 * Resolve the name argument value.
-	 */
-	protected function name() : string {
-		return $this->argument("name");
-	}
+abstract class MakeClassCommand extends BaseCommand {
+	use HasNameArgument;
 
 }
