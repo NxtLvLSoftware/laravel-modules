@@ -46,6 +46,11 @@ class NamedClassFileSettings extends ClassFileSettings {
 	 */
 	private $name;
 
+	/**
+	 * @var bool
+	 */
+	private $prependBase = true;
+
 	public function getName() : ?string {
 		return $this->name;
 	}
@@ -56,11 +61,17 @@ class NamedClassFileSettings extends ClassFileSettings {
 		return $this;
 	}
 
+	public function prependBase(bool $prepend = true) : self {
+		$this->prependBase = $prepend;
+
+		return $this;
+	}
+
 	public function getOutput() : string {
 		$output = parent::getOutput();
 		$base = basename($output);
 
-		return dirname($output) . "/" .  $this->name . $base;
+		return dirname($output) . "/" . $this->name . ($this->prependBase ? $base : ".php");
 	}
 
 }
