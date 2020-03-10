@@ -35,8 +35,11 @@
 namespace NxtLvlSoftware\LaravelModulesCli\Setting\File;
 
 use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use function dirname;
+use function pathinfo;
 use function str_replace;
 use function trim;
+use const PATHINFO_FILENAME;
 
 /**
  * Settings for class-like namespaced files (classes, traits, interfaces, etc).
@@ -54,6 +57,14 @@ class ClassFileSettings extends FileSettings {
 
 	public function getNamespace() : string {
 		return $this->ns;
+	}
+
+	public function getClassName() : string {
+		return pathinfo($this->getOutput(), PATHINFO_FILENAME);
+	}
+
+	public function getFqn() : string {
+		return $this->getNamespace() . "\\" . $this->getClassName();
 	}
 
 	private function resolveNamespace() : string {

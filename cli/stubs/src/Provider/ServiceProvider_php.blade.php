@@ -1,6 +1,6 @@
 <?php
 /**
- * @var \NxtLvlSoftware\LaravelModulesCli\Setting\File\NamedClassFileSettings $settings
+ * @var \NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings $settings
  */
 
 use Illuminate\Support\Str;

@@ -40,15 +40,19 @@ use Illuminate\Contracts\View\View as ViewInstance;
 use Illuminate\Support\Facades\View;
 use function basename;
 use function dirname;
+use function pathinfo;
 use function str_replace;
 use function trim;
+use const PATHINFO_DIRNAME;
+use const PATHINFO_EXTENSION;
+use const PATHINFO_FILENAME;
 
 class FileSettings {
 
 	/**
-	 * @var string
+	 * @var \NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings|null
 	 */
-	private $template;
+	private $moduleSettings;
 
 	/**
 	 * @var string
@@ -56,9 +60,29 @@ class FileSettings {
 	private $output;
 
 	/**
-	 * @var \NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings|null
+	 * @var string
 	 */
-	private $moduleSettings;
+	private $template;
+
+	/**
+	 * @var View
+	 */
+	private $view;
+
+	/**
+	 * @var string|null
+	 */
+	protected $name = null;
+
+	/**
+	 * @var bool
+	 */
+	protected $prependBase = true;
+
+	/**
+	 * @var bool
+	 */
+	protected $appendBase = false;
 
 	/**
 	 * Constructor is final to prevent modifying the signature. Use @link init() to
@@ -84,17 +108,47 @@ class FileSettings {
 	}
 
 	public function getView() : ViewInstance {
-		return View::make($this->template, [
-			"settings" => $this
-		]);
+		if($this->view === null) {
+			$this->view = View::make($this->template, [
+				"settings" => $this,
+			]);
+		}
+
+		return $this->view;
 	}
 
 	public function getTemplate() : string {
 		return $this->template;
 	}
 
+	public function getName() : string {
+		return $this->name ?? "";
+	}
+
+	public function setName(string $name) : self {
+		$this->name = $name;
+
+		return $this;
+	}
+
+	public function prependBase(bool $prepend = true) : self {
+		$this->prependBase = $prepend;
+
+		return $this;
+	}
+
+	public function appendBase(bool $append = true) : self {
+		$this->appendBase = $append;
+
+		return $this;
+	}
+
 	public function getOutput() : string {
-		return $this->output;
+		$path = pathinfo($this->output, PATHINFO_DIRNAME);
+		$base = pathinfo($this->output, PATHINFO_FILENAME);
+		$ext = pathinfo($this->output, PATHINFO_EXTENSION);
+
+		return $path . "/" . ($this->prependBase ? $base : "") . $this->getName() . ($this->appendBase ? $base : "") . "." . $ext;
 	}
 
 	/**
