@@ -49,7 +49,7 @@ trait HasNameArgument {
 	 * Resolve the output file name.
 	 */
 	protected function outputName() : string {
-		return $this->callNamedCallback(self::CALLBACK_NAME, $this) ?: $this->name();
+		return $this->callNamedCallback(self::CALLBACK_NAME, $this, $this->name()) ?: $this->name();
 	}
 
 }
