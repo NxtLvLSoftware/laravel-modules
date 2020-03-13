@@ -34,39 +34,13 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Exception;
 
-use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
-use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use RuntimeException;
 
-trait HasFileSettings {
-
-	/**
-	 * @var bool
-	 */
-	protected $prependBase = false;
-
-	/**
-	 * @var bool
-	 */
-	protected $appendBase = false;
-
-	public function getFileSettings() : FileSettings {
-		return FileSettingsExtension::retrieve($this)
-			->prependBase($this->prependBase)
-			->appendBase($this->appendBase);
-	}
-
-	public function prependBase(bool $prepend = true) : self {
-		$this->prependBase = $prepend;
-
-		return $this;
-	}
-
-	public function appendBase(bool $append = true) : self {
-		$this->appendBase = $append;
-
-		return $this;
-	}
+/**
+ * Thrown when retrieving an invalid value for an extension.
+ */
+class InvalidExtensionValueException extends RuntimeException {
 
 }

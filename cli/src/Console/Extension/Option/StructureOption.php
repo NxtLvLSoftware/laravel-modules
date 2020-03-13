@@ -34,39 +34,44 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option;
 
-use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
-use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\BaseCommand;
+use RuntimeException;
+use function getcwd;
+use function is_file;
+use function realpath;
+use function strpos;
 
-trait HasFileSettings {
+class StructureOption extends OptionExtension {
 
-	/**
-	 * @var bool
-	 */
-	protected $prependBase = false;
-
-	/**
-	 * @var bool
-	 */
-	protected $appendBase = false;
-
-	public function getFileSettings() : FileSettings {
-		return FileSettingsExtension::retrieve($this)
-			->prependBase($this->prependBase)
-			->appendBase($this->appendBase);
+	public function __construct() {
+		parent::__construct("--s|structure=");
 	}
 
-	public function prependBase(bool $prepend = true) : self {
-		$this->prependBase = $prepend;
+	/**
+	 * @inheritDoc
+	 */
+	public function resolve($input) {
+		if($input === null) {
+			return null; // not specified
+		}
 
-		return $this;
+		$path = realpath($input);
+		if($path !== false and strpos($path, "/") === 0) {
+			return include $path; // absolute paths
+		}
+
+		$local = getcwd() . "/" . $input;
+		if(!is_file($local)) {
+			throw new RuntimeException("Could not find structure file '{$local}' in '" . getcwd() . "/'");
+		}
+
+		return include $local; // local paths
 	}
 
-	public function appendBase(bool $append = true) : self {
-		$this->appendBase = $append;
-
-		return $this;
+	public static function retrieve(BaseCommand $command) : ?array {
+		return $command->extension(static::class, true);
 	}
 
 }

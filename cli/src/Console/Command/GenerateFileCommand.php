@@ -39,44 +39,66 @@ namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 use Illuminate\Support\Str;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasFileSettings;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasNamedCallbacks;
-use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasNameArgument;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Argument\NameArgument;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option\NamespaceOption;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option\StructureOption;
+use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleSettings;
 use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
+use function array_merge;
 
 /**
  * Generic command implementation for generating files from blade templates.
  */
 class GenerateFileCommand extends BaseCommand {
-	use HasNamedCallbacks, HasFileSettings, HasNameArgument;
+	use HasNamedCallbacks, RequiresModuleSettings, HasFileSettings;
+
+	/**
+	 * @var string
+	 */
+	protected $baseName;
+
+	/**
+	 * @var string
+	 */
+	protected $template;
+
+	/**
+	 * @var string|null
+	 */
+	protected $fileSettings;
 
 	protected const CALLBACK_NAME = "format_name";
 
-	protected function fallbackDefinition(string $signature, string $description) : void {
-		$this->signature = $this->signature ?? $signature;
+	protected function fallbackDefinition(string $description, string $signature = null) : void {
 		$this->description = $this->description ?? $description;
+		$this->signature = $this->signature ?? ($signature ?? ("make:" . $this->baseName));
+	}
+
+	protected function defaultExtensions() : array {
+		return array_merge(parent::defaultExtensions(), [
+			new NameArgument($this->baseName),
+			new NamespaceOption,
+			new StructureOption,
+			new FileSettingsExtension($this->template, $this->fileSettings)
+		]);
 	}
 
 	public function __construct(string $name, string $description, string $template, ?string $fileSettings = null) {
-		$this->fallbackDefinition(
-			"make:" . Str::lower($name) . " {name : Name of the " . $name . "} {--p|path=} {--stubs= : Path to the stub directory to use}",
-			$description
-		);
+		$this->baseName = Str::lower($name);
+		$this->template = $template;
+		$this->fileSettings = $fileSettings;
+
+		$this->fallbackDefinition($description);
 
 		parent::__construct();
-
-		$this->before(static function(GenerateFileCommand $command) use($template, $fileSettings) : void {
-			$command->createFileSettings($template, $fileSettings);
-		});
 	}
 
 	protected function exec() : void {
-		$this->stubs();
-
-		$this->fileSettings
-			->setName($this->outputName());
-
 		$generator = new FileGenerator(
 			$this->getModuleDisk(),
-			$this->fileSettings
+			$this->getFileSettings()
+				->setName($this->resolveFileName())
 		);
 
 		$generator->generate();
@@ -94,6 +116,11 @@ class GenerateFileCommand extends BaseCommand {
 		$this->setNamedCallback(self::CALLBACK_NAME, $callback);
 
 		return $this;
+	}
+
+	protected function resolveFileName(string $fallback = null) : string {
+		$fallback = $fallback ?? NameArgument::retrieve($this);
+		return $this->callNamedCallback(self::CALLBACK_NAME, $this, $fallback) ?? $fallback;
 	}
 
 }

@@ -34,39 +34,31 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option;
 
-use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
-use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use Illuminate\Support\Str;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\BaseCommand;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Argument\NameArgument;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Traits\HasStringValue;
 
-trait HasFileSettings {
+class NamespaceOption extends OptionExtension {
+	use HasStringValue;
 
-	/**
-	 * @var bool
-	 */
-	protected $prependBase = false;
-
-	/**
-	 * @var bool
-	 */
-	protected $appendBase = false;
-
-	public function getFileSettings() : FileSettings {
-		return FileSettingsExtension::retrieve($this)
-			->prependBase($this->prependBase)
-			->appendBase($this->appendBase);
+	public function __construct() {
+		parent::__construct("--namespace=");
 	}
 
-	public function prependBase(bool $prepend = true) : self {
-		$this->prependBase = $prepend;
+	/**
+	 * @inheritDoc
+	 */
+	public function resolve($input) {
+		if($input !== null) {
+			return $input;
+		}
 
-		return $this;
-	}
-
-	public function appendBase(bool $append = true) : self {
-		$this->appendBase = $append;
-
-		return $this;
+		return static function (BaseCommand $command) : string {
+			return Str::studly($command->extension(NameArgument::class)); // fallback to the name argument
+		};
 	}
 
 }

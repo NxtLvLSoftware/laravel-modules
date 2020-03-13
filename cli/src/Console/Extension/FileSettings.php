@@ -34,39 +34,55 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Extension;
 
-use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
-use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use Illuminate\Console\Command;
+use Illuminate\Support\Str;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\BaseCommand;
+use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleSettings;
+use NxtLvlSoftware\LaravelModulesCli\Contract\Console\Extension\Resolvable;
+use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings as Settings;
+use function is_a;
+use function var_dump;
 
-trait HasFileSettings {
+class FileSettings extends CommandExtension implements Resolvable {
+	use RequiresModuleSettings;
 
 	/**
-	 * @var bool
+	 * @var string
 	 */
-	protected $prependBase = false;
+	private $template;
 
 	/**
-	 * @var bool
+	 * @var string|null
 	 */
-	protected $appendBase = false;
+	private $class;
 
-	public function getFileSettings() : FileSettings {
-		return FileSettingsExtension::retrieve($this)
-			->prependBase($this->prependBase)
-			->appendBase($this->appendBase);
+	public function __construct(string $template, ?string $class) {
+		if($class === null or !is_a($class, Settings::class, true)) {
+			$class = Settings::class;
+		}
+
+		$this->template = $template;
+		$this->class = $class;
 	}
 
-	public function prependBase(bool $prepend = true) : self {
-		$this->prependBase = $prepend;
-
-		return $this;
+	/**
+	 * @inheritDoc
+	 */
+	public function value(Command $command) {
+		return new $this->class($this->makeModuleSettings(), $this->template);
 	}
 
-	public function appendBase(bool $append = true) : self {
-		$this->appendBase = $append;
+	/**
+	 * @inheritDoc
+	 */
+	public function resolve($input) {
+		return $input;
+	}
 
-		return $this;
+	public static function retrieve(BaseCommand $command) : Settings {
+		return $command->extension(static::class);
 	}
 
 }

@@ -37,17 +37,20 @@ declare(strict_types=1);
 namespace NxtLvlSoftware\LaravelModulesCli\Console;
 
 use Illuminate\Console\Application as Artisan;
+use Illuminate\Database\Console\Migrations\TableGuesser;
 use Illuminate\Foundation\Console\Kernel as BaseKernel;
 use Illuminate\Support\Str;
 use NxtLvlSoftware\LaravelModulesCli\Console\Build\CommandBuilder;
 use NxtLvlSoftware\LaravelModulesCli\Console\Build\GenerateFileCommandBuilder;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\GenerateFileCommand;
-use NxtLvlSoftware\LaravelModulesCli\Console\Command\GenerateModelFileCommand;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\MakeModuleCommand;
+use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleSettings;
 use NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings;
 use function date;
+use function trim;
 
 class Kernel extends BaseKernel {
+	use RequiresModuleSettings;
 
 	/**
 	 * The bootstrap classes for the application.
@@ -81,10 +84,18 @@ class Kernel extends BaseKernel {
 			->appendBase();
 		$builder->modelFile("factory", "Create a new model factory.", "database/factories/Factory.php")
 			->appendBase();
-		$builder->modelFile("migration", "Create a new model migration.", "database/migration/migration.php", ClassFileSettings::class)
-			->withNameFormat(static function(GenerateModelFileCommand $command) : string {
-				$command->getFileSettings()->setOutputClassName("Create" . Str::of($command->getModelFileSettings()->getClassName())->plural()->studly() . "Table");
-				return date('Y_m_d_His') . "_create_" . Str::of($command->getModelFileSettings()->getClassName())->lower()->plural() . "_table";
+		$builder->file("migration", "Create a new model migration.", "database/migration/migration.php", ClassFileSettings::class)
+			->withNameFormat(static function(GenerateFileCommand $command, string $input) : string {
+				$name = Str::snake(trim($input));
+				[$table, $create] = TableGuesser::guess($name);
+				$base = ($create ? "create" : "update") . "_" . $table . "_table";
+
+				$file = $command->getFileSettings();
+
+				$file->getView()->with("table", $table); // set the table name var for the template
+				$file->setOutputClassName(Str::studly($base)); // class name
+
+				return date("Y_m_d_His") . "_" . $base; // filename
 			});
 		$builder->file("model", "Create a new eloquent model.", "src/Model/Model.php", ClassFileSettings::class)
 			->withNameFormat(static function(GenerateFileCommand $command, string $input) : string {

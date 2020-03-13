@@ -34,39 +34,31 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Extension;
 
-use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
-use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use Illuminate\Console\Parser;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\BaseCommand;
 
-trait HasFileSettings {
-
-	/**
-	 * @var bool
-	 */
-	protected $prependBase = false;
+/**
+ * Provides a reusable set of functionality for commands, usually in the form of arguments or options.
+ */
+abstract class CommandExtension extends Parser {
 
 	/**
-	 * @var bool
+	 * Called when the extension is added to a command instance.
+	 *
+	 * @param \NxtLvlSoftware\LaravelModulesCli\Console\Command\BaseCommand $command
+	 *
+	 * @return static
 	 */
-	protected $appendBase = false;
-
-	public function getFileSettings() : FileSettings {
-		return FileSettingsExtension::retrieve($this)
-			->prependBase($this->prependBase)
-			->appendBase($this->appendBase);
-	}
-
-	public function prependBase(bool $prepend = true) : self {
-		$this->prependBase = $prepend;
+	public function apply(BaseCommand $command) : self {
+		$this->onApply($command);
 
 		return $this;
 	}
 
-	public function appendBase(bool $append = true) : self {
-		$this->appendBase = $append;
-
-		return $this;
+	protected function onApply(BaseCommand $command) : void {
+		//
 	}
 
 }

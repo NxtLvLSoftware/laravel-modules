@@ -34,22 +34,36 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Extension\Argument;
 
-trait HasNameArgument {
+use Illuminate\Support\Str;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\BaseCommand;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\Exception\ModelNotFoundException;
+use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleSettings;
+use NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings;
 
-	/**
-	 * Resolve the name argument value.
-	 */
-	protected function name() : string {
-		return $this->argument("name");
+class ModelArgument extends ArgumentExtension {
+	use RequiresModuleSettings;
+
+	public function __construct(string $type = null) {
+		parent::__construct("model : Name of the model" . ($type === null ? "" : " to create a " . $type . "for"));
 	}
 
 	/**
-	 * Resolve the output file name.
+	 * @inheritDoc
 	 */
-	protected function outputName() : string {
-		return $this->callNamedCallback(self::CALLBACK_NAME, $this, $this->name()) ?: $this->name();
+	public function resolve($input) {
+		$path = "src/Model/" . Str::studly($input) . ".php";
+
+		if(!$this->getModuleDisk()->exists($path)) {
+			throw new ModelNotFoundException("Could not find model '{$input}' at '{$path}'");
+		}
+
+		return new ClassFileSettings($this->makeModuleSettings(), $path);
+	}
+
+	public static function retrieve(BaseCommand $command) : ClassFileSettings {
+		return $command->extension(static::class);
 	}
 
 }

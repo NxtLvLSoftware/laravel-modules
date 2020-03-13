@@ -34,39 +34,23 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Traits;
 
-use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
-use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
+use function getcwd;
 
-trait HasFileSettings {
-
-	/**
-	 * @var bool
-	 */
-	protected $prependBase = false;
+trait RequiresModuleSettings {
+	use RequiresComposerSettings;
 
 	/**
-	 * @var bool
+	 * Create a module settings instance from the provided parameters or attempt to construct it from the detected composer.json.
 	 */
-	protected $appendBase = false;
+	public function makeModuleSettings(string $path = null, string $name = null, string $namespace = null, array $structure = null) : ModuleSettings {
+		if($name === null or $namespace === null) {
+			$composer = $this->getComposerSettings();
+		}
 
-	public function getFileSettings() : FileSettings {
-		return FileSettingsExtension::retrieve($this)
-			->prependBase($this->prependBase)
-			->appendBase($this->appendBase);
-	}
-
-	public function prependBase(bool $prepend = true) : self {
-		$this->prependBase = $prepend;
-
-		return $this;
-	}
-
-	public function appendBase(bool $append = true) : self {
-		$this->appendBase = $append;
-
-		return $this;
+		return new ModuleSettings($name ?? $composer->getPackage(), $path ?? getcwd(),$namespace ?? $composer->detectNamespace(), $structure);
 	}
 
 }

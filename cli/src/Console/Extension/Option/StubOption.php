@@ -34,39 +34,42 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option;
 
-use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
-use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use Illuminate\Support\Facades\Config;
+use RuntimeException;
+use function getcwd;
+use function is_file;
+use function realpath;
+use function strpos;
 
-trait HasFileSettings {
+class StubOption extends OptionExtension {
 
-	/**
-	 * @var bool
-	 */
-	protected $prependBase = false;
-
-	/**
-	 * @var bool
-	 */
-	protected $appendBase = false;
-
-	public function getFileSettings() : FileSettings {
-		return FileSettingsExtension::retrieve($this)
-			->prependBase($this->prependBase)
-			->appendBase($this->appendBase);
+	public function __construct() {
+		parent::__construct("--stubs= : Path to the stub directory to use");
 	}
 
-	public function prependBase(bool $prepend = true) : self {
-		$this->prependBase = $prepend;
+	/**
+	 * @inheritDoc
+	 */
+	public function resolve($input) {
+		if($input === null) {
+			return;
+		}
 
-		return $this;
-	}
+		$absolute = realpath($input);
+		if($absolute !== false and strpos($absolute, "/") === 0) {
+			Config::prepend("view.paths", $absolute); // prepend absolute path
+			return;
+		}
 
-	public function appendBase(bool $append = true) : self {
-		$this->appendBase = $append;
+		$local = getcwd() . "/" . $input;
+		if(is_file($local)) {
+			Config::prepend("view.paths", $local);
+			return;
+		}
 
-		return $this;
+		throw new RuntimeException("Could not find specified stub directory '{$local}' in '" . getcwd() . "/'");
 	}
 
 }

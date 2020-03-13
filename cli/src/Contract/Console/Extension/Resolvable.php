@@ -34,39 +34,28 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Contract\Console\Extension;
 
-use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
-use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use Illuminate\Console\Command;
 
-trait HasFileSettings {
-
-	/**
-	 * @var bool
-	 */
-	protected $prependBase = false;
+interface Resolvable {
 
 	/**
-	 * @var bool
+	 * Returns the raw user input value.
+	 *
+	 * @param \Illuminate\Console\Command $command
+	 *
+	 * @return mixed
 	 */
-	protected $appendBase = false;
+	public function value(Command $command);
 
-	public function getFileSettings() : FileSettings {
-		return FileSettingsExtension::retrieve($this)
-			->prependBase($this->prependBase)
-			->appendBase($this->appendBase);
-	}
-
-	public function prependBase(bool $prepend = true) : self {
-		$this->prependBase = $prepend;
-
-		return $this;
-	}
-
-	public function appendBase(bool $append = true) : self {
-		$this->appendBase = $append;
-
-		return $this;
-	}
+	/**
+	 * Resolve a value from raw user input.
+	 *
+	 * @param string|array|null $input
+	 *
+	 * @return mixed
+	 */
+	public function resolve($input);
 
 }

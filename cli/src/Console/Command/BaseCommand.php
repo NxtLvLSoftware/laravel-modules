@@ -36,16 +36,14 @@ declare(strict_types=1);
 
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
+use Closure;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Filesystem\Filesystem;
-use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasStubsOption;
-use NxtLvlSoftware\LaravelModulesCli\Provider\LaravelModulesServiceProvider;
-use NxtLvlSoftware\LaravelModulesCli\Setting\File\ComposerJsonFileSettings;
-use NxtLvlSoftware\LaravelModulesCli\Setting\ModuleSettings;
-use function getcwd;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasCommandExtensions;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option\StubOption;
+use function var_dump;
 
 abstract class BaseCommand extends Command {
-	use HasStubsOption;
+	use HasCommandExtensions;
 
 	/**
 	 * @var callable[]
@@ -56,6 +54,18 @@ abstract class BaseCommand extends Command {
 	 * @var callable[]
 	 */
 	private $after = [];
+
+	protected function defaultExtensions() : array {
+		return [
+			new StubOption,
+		];
+	}
+
+	public function __construct() {
+		parent::__construct();
+
+		$this->resolveExtensions();
+	}
 
 	/**
 	 * Handle the command execution.
@@ -93,39 +103,6 @@ abstract class BaseCommand extends Command {
 		$this->after[] = $callable;
 
 		return $this;
-	}
-
-	/**
-	 * Retrieve the composer json settings for the current directory.
-	 */
-	public function getComposerSettings() : ComposerJsonFileSettings {
-		return $this->getApplication()->getLaravel()->make(ComposerJsonFileSettings::class);
-	}
-
-	/**
-	 * Retrieve the module disk from the container.
-	 */
-	public function getModuleDisk(string $path = null) : Filesystem {
-		$app = $this->getApplication()->getLaravel();
-
-		if($path !== null) {
-			$app->extend(LaravelModulesServiceProvider::MODULE_DISK_PATH, static function() use($path) : string {
-				return $path;
-			});
-		}
-
-		return $app->make(LaravelModulesServiceProvider::MODULE_DISK);
-	}
-
-	/**
-	 * Create a module settings instance from the provided parameters or attempt to construct it from the detected composer.json.
-	 */
-	protected function makeModuleSettings(string $path = null, string $name = null, string $namespace = null, array $structure = null) : ModuleSettings {
-		if($name === null or $namespace === null) {
-			$composer = $this->getComposerSettings();
-		}
-
-		return new ModuleSettings($name ?? $composer->getPackage(), $path ?? getcwd(),$namespace ?? $composer->detectNamespace(), $structure);
 	}
 
 }

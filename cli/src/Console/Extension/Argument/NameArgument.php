@@ -34,39 +34,22 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Extension\Argument;
 
-use Illuminate\Support\Facades\Config;
-use RuntimeException;
-use function getcwd;
-use function is_file;
-use function realpath;
-use function strpos;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Traits\HasStringValue;
 
-trait HasStubsOption {
+class NameArgument extends ArgumentExtension {
+	use HasStringValue;
+
+	public function __construct(string $type = null) {
+		parent::__construct("name : Name " . ($type === null ? "argument" : "of the " . $type));
+	}
 
 	/**
-	 * Resolve the namespace option value.
+	 * @inheritDoc
 	 */
-	protected function stubs() : void {
-		$opt = $this->option("stubs");
-		if($opt === null) {
-			return;
-		}
-
-		$absolute = realpath($opt);
-		if($absolute !== false and strpos($absolute, "/") === 0) {
-			Config::prepend("view.paths", $absolute); // prepend absolute path
-			return;
-		}
-
-		$local = getcwd() . "/" . $opt;
-		if(is_file($local)) {
-			Config::prepend("view.paths", $local);
-			return;
-		}
-
-		throw new RuntimeException("Could not find structure file '{$local}' in '" . getcwd() . "/'");
+	public function resolve($input) {
+		return $input; // the name is just the raw input
 	}
 
 }

@@ -34,30 +34,25 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Traits;
 
-use Illuminate\Support\Str;
-use NxtLvlSoftware\LaravelModulesCli\Console\Command\Exception\ModelNotFoundException;
-use NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings;
+use Illuminate\Contracts\Filesystem\Filesystem;
+use NxtLvlSoftware\LaravelModulesCli\Provider\LaravelModulesServiceProvider;
+use function app;
 
-/**
- * @mixin \NxtLvlSoftware\LaravelModulesCli\Console\Command\BaseCommand
- */
-trait HasModelArgument {
+trait RequiresModuleDisk {
 
 	/**
-	 * Resolve the model argument value.
+	 * Retrieve the module disk from the container.
 	 */
-	protected function model() : ClassFileSettings {
-		$model = $this->argument("model");
-
-		$path = "src/Model/" . Str::studly($model) . ".php";
-		$disk = $this->getModuleDisk();
-
-		if(!$disk->exists($path)) {
-			throw new ModelNotFoundException("Could not find model '{$model}' at '{$path}'");
+	public function getModuleDisk(string $path = null) : Filesystem {
+		if($path !== null) {
+			app()->extend(LaravelModulesServiceProvider::MODULE_DISK_PATH, static function() use($path) : string {
+				return $path;
+			});
 		}
 
-		return new ClassFileSettings($this->makeModuleSettings(), $path);
+		return app()->make(LaravelModulesServiceProvider::MODULE_DISK);
 	}
+
 }

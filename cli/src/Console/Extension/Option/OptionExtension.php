@@ -34,24 +34,45 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option;
 
-use Illuminate\Support\Str;
+use Illuminate\Console\Command;
+use InvalidArgumentException;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\BaseCommand;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\CommandExtension;
+use NxtLvlSoftware\LaravelModulesCli\Contract\Console\Extension\Resolvable;
+use Symfony\Component\Console\Input\InputOption;
+use function is_string;
 
-trait HasNamespaceArgument {
-	use HasNameArgument;
+/**
+ * Base class for a command option extension.
+ */
+abstract class OptionExtension extends CommandExtension implements Resolvable {
 
 	/**
-	 * Resolve the namespace option value.
+	 * @var \Symfony\Component\Console\Input\InputArgument
 	 */
-	private function namespace() : string {
-		$opt = $this->option("namespace");
+	private $option;
 
-		if($opt !== null) {
-			return $opt;
+	public function __construct($option) {
+		if($option instanceof InputOption) {
+			$this->option = $option;
+		} elseif(is_string($option)) {
+			$this->option = self::parseOption($option);
+		} else {
+			throw new InvalidArgumentException("Unknown option type provided");
 		}
+	}
 
-		return Str::ucfirst($this->name());
+	protected function onApply(BaseCommand $command) : void {
+		$command->getDefinition()->addOption($this->option);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	final public function value(Command $command) {
+		return $command->option($this->option->getName());
 	}
 
 }

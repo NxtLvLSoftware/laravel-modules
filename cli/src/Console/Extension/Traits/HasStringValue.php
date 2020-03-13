@@ -34,39 +34,27 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Extension\Traits;
 
-use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
-use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use InvalidArgumentException;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\BaseCommand;
 
-trait HasFileSettings {
+/**
+ * Provides a helper method for retrieving the extensions value from a command with type safety.
+ */
+trait HasStringValue {
 
-	/**
-	 * @var bool
-	 */
-	protected $prependBase = false;
+	/** @noinspection PhpStrictTypeCheckingInspection */
+	public static function retrieve(BaseCommand $command, bool $weak = false) : string {
+		try {
+			return $command->extension(static::class);
+		} catch(InvalidArgumentException $e) {
+			if(!$weak) {
+				throw $e;
+			}
 
-	/**
-	 * @var bool
-	 */
-	protected $appendBase = false;
-
-	public function getFileSettings() : FileSettings {
-		return FileSettingsExtension::retrieve($this)
-			->prependBase($this->prependBase)
-			->appendBase($this->appendBase);
-	}
-
-	public function prependBase(bool $prepend = true) : self {
-		$this->prependBase = $prepend;
-
-		return $this;
-	}
-
-	public function appendBase(bool $append = true) : self {
-		$this->appendBase = $append;
-
-		return $this;
+			return ""; // weak check, don't throw when the extension isn't set
+		}
 	}
 
 }

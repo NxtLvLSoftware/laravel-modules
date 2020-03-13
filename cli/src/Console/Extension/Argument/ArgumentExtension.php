@@ -34,39 +34,45 @@ declare(strict_types=1);
  *
  */
 
-namespace NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits;
+namespace NxtLvlSoftware\LaravelModulesCli\Console\Extension\Argument;
 
-use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
-use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
+use Illuminate\Console\Command;
+use InvalidArgumentException;
+use NxtLvlSoftware\LaravelModulesCli\Console\Command\BaseCommand;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\CommandExtension;
+use NxtLvlSoftware\LaravelModulesCli\Contract\Console\Extension\Resolvable;
+use Symfony\Component\Console\Input\InputArgument;
+use function is_string;
 
-trait HasFileSettings {
+/**
+ * Base class for a command argument extension.
+ */
+abstract class ArgumentExtension extends CommandExtension implements Resolvable {
 
 	/**
-	 * @var bool
+	 * @var \Symfony\Component\Console\Input\InputArgument
 	 */
-	protected $prependBase = false;
+	private $argument;
+
+	public function __construct($argument) {
+		if($argument instanceof InputArgument) {
+			$this->argument = $argument;
+		} elseif(is_string($argument)) {
+			$this->argument = self::parseArgument($argument);
+		} else {
+			throw new InvalidArgumentException("Unknown argument type provided");
+		}
+	}
+
+	protected function onApply(BaseCommand $command) : void {
+		$command->getDefinition()->addArgument($this->argument);
+	}
 
 	/**
-	 * @var bool
+	 * @inheritDoc
 	 */
-	protected $appendBase = false;
-
-	public function getFileSettings() : FileSettings {
-		return FileSettingsExtension::retrieve($this)
-			->prependBase($this->prependBase)
-			->appendBase($this->appendBase);
-	}
-
-	public function prependBase(bool $prepend = true) : self {
-		$this->prependBase = $prepend;
-
-		return $this;
-	}
-
-	public function appendBase(bool $append = true) : self {
-		$this->appendBase = $append;
-
-		return $this;
+	final public function value(Command $command) {
+		return $command->argument($this->argument->getName());
 	}
 
 }

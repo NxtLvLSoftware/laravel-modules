@@ -36,43 +36,40 @@ declare(strict_types=1);
 
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
-use Illuminate\Support\Str;
-use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasModelArgument;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Argument\ModelArgument;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option\NamespaceOption;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option\StructureOption;
 use NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings;
+use function array_merge;
 
 /**
  * Generic command implementation for generating files from blade templates that depend on a model.
  */
 class GenerateModelFileCommand extends GenerateFileCommand {
-	use HasModelArgument;
 
-	/**
-	 * @var \NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings
-	 */
-	private $modelFileSettings;
-
-	public function __construct(string $name, string $description, string $template, ?string $fileSettings = null) {
-		$this->fallbackDefinition(
-			"make:" . Str::lower($name) . " {model : Name of the model to create a " . $name . " for} {--p|path=} {--stubs= : Path to the stub directory to use}",
-			$description
-		);
-
-		parent::__construct($name, $description, $template, $fileSettings);
+	protected function defaultExtensions() : array {
+		return array_merge(BaseCommand::defaultExtensions(), [
+			new ModelArgument($this->baseName),
+			new NamespaceOption,
+			new StructureOption,
+			new FileSettingsExtension($this->template, $this->fileSettings)
+		]);
 	}
 
 	protected function exec() : void {
-		$this->getFileSettings()->getView()
-			->with("model", $this->modelFileSettings = $this->model());
+		$this->getFileSettings()
+			->getView()->with("model", $this->getModelFileSettings());
 
 		parent::exec();
 	}
 
 	public function getModelFileSettings() : ClassFileSettings {
-		return $this->modelFileSettings;
+		return ModelArgument::retrieve($this);
 	}
 
-	protected function name() : string {
-		return $this->modelFileSettings->getClassName();
+	protected function resolveFileName(string $fallback = null) : string {
+		return parent::resolveFileName($fallback ?? $this->getModelFileSettings()->getClassName());
 	}
 
 }

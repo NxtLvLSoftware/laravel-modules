@@ -36,58 +36,45 @@ declare(strict_types=1);
 
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
-use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasNamespaceArgument;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Argument\NameArgument;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option\NamespaceOption;
+use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option\StructureOption;
+use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleSettings;
 use NxtLvlSoftware\LaravelModulesCli\Generator\ModuleGenerator;
-use RuntimeException;
+use function array_merge;
 use function getcwd;
-use function is_file;
-use function realpath;
 use const DIRECTORY_SEPARATOR;
 
 class MakeModuleCommand extends BaseCommand {
-	use HasNamespaceArgument;
+	use RequiresModuleSettings;
 
-	protected $signature = "make:module {name} {--namespace=} {--s|structure=} {--stubs= : Path to the stub directory to use}";
+	protected $signature = "make:module";
 
 	protected $description = "Create a new service provider.";
 
-	protected function exec() : void {
-		$this->stubs();
+	protected function defaultExtensions() : array {
+		return array_merge(parent::defaultExtensions(), [
+			new NameArgument("module"),
+			new NamespaceOption,
+			new StructureOption,
+		]);
+	}
 
-		$name = $this->name();
-		$ns = $this->namespace();
-		$structure = $this->structure();
+	protected function exec() : void {
+		$name = NameArgument::retrieve($this);
 		$path = getcwd() . DIRECTORY_SEPARATOR . $name;
 
 		$generator = new ModuleGenerator(
 			$name,
 			$this->getModuleDisk($path),
-			$this->makeModuleSettings($name, $path, $ns, $structure)
+			$this->makeModuleSettings(
+				$name,
+				$path,
+				NamespaceOption::retrieve($this),
+				StructureOption::retrieve($this)
+			)
 		);
 		$generator->generate();
-	}
-
-	/**
-	 * Resolve the structure option value.
-	 */
-	private function structure() : ?array {
-		$file = $this->option("structure");
-
-		if($file === null) {
-			return null; // not specified
-		}
-
-		$path = realpath($file);
-		if($path !== false and strpos($path, "/") === 0) {
-			return include $path; // absolute paths
-		}
-
-		$local = getcwd() . "/" . $file;
-		if(!is_file($local)) {
-			throw new RuntimeException("Could not find structure file '{$local}' in '" . getcwd() . "/'");
-		}
-
-		return include $local; // local paths
 	}
 
 }
