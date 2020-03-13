@@ -43,7 +43,6 @@ use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleSettings;
 use NxtLvlSoftware\LaravelModulesCli\Contract\Console\Extension\Resolvable;
 use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings as Settings;
 use function is_a;
-use function var_dump;
 
 class FileSettings extends CommandExtension implements Resolvable {
 	use RequiresModuleSettings;
@@ -81,7 +80,7 @@ class FileSettings extends CommandExtension implements Resolvable {
 		return $input;
 	}
 
-	public static function retrieve(BaseCommand $command) : Settings {
+	public static function valueFor(BaseCommand $command) : Settings {
 		return $command->extension(static::class);
 	}
 

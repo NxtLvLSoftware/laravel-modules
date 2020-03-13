@@ -52,7 +52,7 @@ trait HasFileSettings {
 	protected $appendBase = false;
 
 	public function getFileSettings() : FileSettings {
-		return FileSettingsExtension::retrieve($this)
+		return FileSettingsExtension::valueFor($this)
 			->prependBase($this->prependBase)
 			->appendBase($this->appendBase);
 	}

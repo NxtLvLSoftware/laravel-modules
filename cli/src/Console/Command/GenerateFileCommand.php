@@ -119,7 +119,7 @@ class GenerateFileCommand extends BaseCommand {
 	}
 
 	protected function resolveFileName(string $fallback = null) : string {
-		$fallback = $fallback ?? NameArgument::retrieve($this);
+		$fallback = $fallback ?? NameArgument::valueFor($this);
 		return $this->callNamedCallback(self::CALLBACK_NAME, $this, $fallback) ?? $fallback;
 	}
 

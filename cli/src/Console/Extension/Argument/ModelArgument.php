@@ -62,7 +62,7 @@ class ModelArgument extends ArgumentExtension {
 		return new ClassFileSettings($this->makeModuleSettings(), $path);
 	}
 
-	public static function retrieve(BaseCommand $command) : ClassFileSettings {
+	public static function valueFor(BaseCommand $command) : ClassFileSettings {
 		return $command->extension(static::class);
 	}
 

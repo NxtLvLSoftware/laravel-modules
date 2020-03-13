@@ -65,7 +65,7 @@ class GenerateModelFileCommand extends GenerateFileCommand {
 	}
 
 	public function getModelFileSettings() : ClassFileSettings {
-		return ModelArgument::retrieve($this);
+		return ModelArgument::valueFor($this);
 	}
 
 	protected function resolveFileName(string $fallback = null) : string {

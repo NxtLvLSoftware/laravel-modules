@@ -45,7 +45,7 @@ use NxtLvlSoftware\LaravelModulesCli\Console\Command\BaseCommand;
 trait HasStringValue {
 
 	/** @noinspection PhpStrictTypeCheckingInspection */
-	public static function retrieve(BaseCommand $command, bool $weak = false) : string {
+	public static function valueFor(BaseCommand $command, bool $weak = false) : string {
 		try {
 			return $command->extension(static::class);
 		} catch(InvalidArgumentException $e) {

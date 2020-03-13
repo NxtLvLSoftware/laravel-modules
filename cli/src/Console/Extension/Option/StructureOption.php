@@ -70,7 +70,7 @@ class StructureOption extends OptionExtension {
 		return include $local; // local paths
 	}
 
-	public static function retrieve(BaseCommand $command) : ?array {
+	public static function valueFor(BaseCommand $command) : ?array {
 		return $command->extension(static::class, true);
 	}
 

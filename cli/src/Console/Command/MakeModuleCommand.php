@@ -61,7 +61,7 @@ class MakeModuleCommand extends BaseCommand {
 	}
 
 	protected function exec() : void {
-		$name = NameArgument::retrieve($this);
+		$name = NameArgument::valueFor($this);
 		$path = getcwd() . DIRECTORY_SEPARATOR . $name;
 
 		$generator = new ModuleGenerator(
@@ -70,8 +70,8 @@ class MakeModuleCommand extends BaseCommand {
 			$this->makeModuleSettings(
 				$name,
 				$path,
-				NamespaceOption::retrieve($this),
-				StructureOption::retrieve($this)
+				NamespaceOption::valueFor($this),
+				StructureOption::valueFor($this)
 			)
 		);
 		$generator->generate();
