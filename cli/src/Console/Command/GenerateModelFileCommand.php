@@ -53,8 +53,8 @@ class GenerateModelFileCommand extends GenerateFileCommand {
 			new ModelArgument($this->baseName),
 			new NamespaceOption,
 			new StructureOption,
-			new FileSettingsExtension($this->template, $this->fileSettings, static function (GenerateFileCommand $command) : string {
-				return $command->runNameFormatCallback($this->getModelFileSettings()->getClassName());
+			new FileSettingsExtension($this->template, $this->fileSettings, static function (GenerateModelFileCommand $command) : string {
+				return $command->runNameFormatCallback($command->getModelFileSettings()->getClassName());
 			})
 		]);
 	}
