@@ -72,7 +72,7 @@ class GenerateFileCommand extends BaseCommand {
 
 	protected function fallbackDefinition(string $description, string $signature = null) : void {
 		$this->description = $this->description ?? $description;
-		$this->signature = $this->signature ?? ($signature ?? ("make:" . $this->baseName));
+		$this->signature = $this->signature ?? ($signature ?? ("module:make-" . $this->baseName));
 	}
 
 	protected function defaultExtensions() : array {

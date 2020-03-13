@@ -48,9 +48,9 @@ use const DIRECTORY_SEPARATOR;
 class MakeModuleCommand extends BaseCommand {
 	use RequiresModuleSettings;
 
-	protected $signature = "make:module";
+	protected $signature = "module:make";
 
-	protected $description = "Create a new service provider.";
+	protected $description = "Create a new module package.";
 
 	protected function defaultExtensions() : array {
 		return array_merge(parent::defaultExtensions(), [
