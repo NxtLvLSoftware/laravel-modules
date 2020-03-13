@@ -81,9 +81,13 @@ class Kernel extends BaseKernel {
 	 */
 	private static function registerGenerateCommands(GenerateFileCommandBuilder $builder) : void {
 		$builder->file("command", "Create a new console command.", "src/Console/Command/Command.php", ClassFileSettings::class)
-			->appendBase();
+			->before(static function(GenerateFileCommand $command) : void {
+				$command->getFileSettings()->appendBase();
+			});
 		$builder->modelFile("factory", "Create a new model factory.", "database/factories/Factory.php")
-			->appendBase();
+			->before(static function(GenerateFileCommand $command) : void {
+				$command->getFileSettings()->appendBase();
+			});
 		$builder->file("migration", "Create a new model migration.", "database/migration/migration.php", ClassFileSettings::class)
 			->withNameFormat(static function(GenerateFileCommand $command, string $input) : string {
 				$name = Str::snake(trim($input));
@@ -102,7 +106,9 @@ class Kernel extends BaseKernel {
 				return (string) Str::of($input)->studly();
 			});
 		$builder->file("provider", "Create a new service provider.", "src/Provider/ServiceProvider.php", ClassFileSettings::class)
-			->appendBase(true)
+			->before(static function(GenerateFileCommand $command) : void {
+				$command->getFileSettings()->appendBase();
+			})
 			->after(static function(GenerateFileCommand $command) : void {
 				$file = $command->getComposerSettings();
 				$file->merge([

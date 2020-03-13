@@ -37,7 +37,6 @@ declare(strict_types=1);
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Command;
 
 use Illuminate\Support\Str;
-use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasFileSettings;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\Traits\HasNamedCallbacks;
 use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Argument\NameArgument;
 use NxtLvlSoftware\LaravelModulesCli\Console\Extension\FileSettings as FileSettingsExtension;
@@ -45,13 +44,14 @@ use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option\NamespaceOption;
 use NxtLvlSoftware\LaravelModulesCli\Console\Extension\Option\StructureOption;
 use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleSettings;
 use NxtLvlSoftware\LaravelModulesCli\Generator\FileGenerator;
+use NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings;
 use function array_merge;
 
 /**
  * Generic command implementation for generating files from blade templates.
  */
 class GenerateFileCommand extends BaseCommand {
-	use HasNamedCallbacks, RequiresModuleSettings, HasFileSettings;
+	use HasNamedCallbacks, RequiresModuleSettings;
 
 	/**
 	 * @var string
@@ -103,6 +103,10 @@ class GenerateFileCommand extends BaseCommand {
 		);
 
 		$generator->generate();
+	}
+
+	public function getFileSettings() : FileSettings {
+		return FileSettingsExtension::valueFor($this);
 	}
 
 	/**
