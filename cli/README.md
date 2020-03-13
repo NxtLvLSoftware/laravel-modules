@@ -19,6 +19,11 @@ from some tools.
     * [Project](#project-installation)
 * [Usage](#usage)
     * [Creating a module](#creating-a-module)
+    * [Generating service providers](#generating-service-providers)
+    * [Generating models](#generating-models)
+    * [Generating factories](#generating-factories)
+    * [Generating migrations](#generating-migrations)
+    * [Generating commands](#generating-commands)
 * [Issues](#issues)
 * [License](#license-information)
 
@@ -63,21 +68,61 @@ your project.
 #### Creating a module
 
 ```bash
-$ laravel-modules make:module {name}
+$ laravel-modules module:make {name}
 ```
 This will create a new module with the specified name, default structure and a root namespace being the module name.
 
 You can specify the namespace with the `--namespace` option:
 ```bash
-$ laravel-modules make:module {name} --namespace Your\NameSpace
+$ laravel-modules module:make {name} --namespace Your\NameSpace
 ```
 
 You can specify a custom project structure file with the `--structure` (`-s`) option:
 ```bash
-$ laravel-modules make:module {name} -s ~/my_module_structure.php
+$ laravel-modules module:make {name} -s ~/my_module_structure.php
 ```
 
 See the [default structure file](default_structure.php) for an example.
+
+#### Generating service providers
+
+```bash
+$ laravel-modules module:make-provider {name}
+```
+This will create a new service provider with the specified name. By default, `ServiceProvider` is added as a suffix so you
+will end up with a class called `PackageServiceProvider` if you supply a name of `Package`.
+
+The new service provider will be added to your modules `composer.json` under Laravel's package discovery settings so you
+don't have to register your package providers manually.
+
+#### Generating models
+
+```bash
+$ laravel-modules module:make-model {name}
+```
+This will create a new eloquent model with the specified name.
+
+#### Generating factories
+
+```bash
+$ laravel-modules module:make-factory {model name}
+```
+This will create a new model factory for the specified model.
+
+#### Generating migrations
+
+```bash
+$ laravel-modules module:make-migration {name}
+```
+This will create a new migration with the specified name.
+
+#### Generating commands
+
+```bash
+$ laravel-modules module:make-command {name}
+```
+This will create a new command with the specified name. By default, `Command` is added as a suffix so you will end up with
+a class called `MyPackageCommand` if you supply a name of `MyPackage`.
 
 ### Issues
 
