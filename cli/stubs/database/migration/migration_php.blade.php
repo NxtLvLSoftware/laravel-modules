@@ -1,10 +1,7 @@
 <?php
 /**
  * @var \NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings $settings
- * @var \NxtLvlSoftware\LaravelModulesCli\Setting\File\ClassFileSettings $model
  */
-
-use Illuminate\Support\Str;
 ?>
 <?= '<?php' ?>
 
@@ -21,7 +18,7 @@ class {{ $settings->getClassName() }} extends Migration {
 	 * @return(void)
 	 */
 	public function up() {
-		Schema::create("{{ Str::of($model->getClassName())->lower()->plural() }}", static function (Blueprint $table) : void {
+		Schema::create("{{ $table }}", static function (Blueprint $table) : void {
 			$table->id();
 			$table->timestamps();
 		});
@@ -33,7 +30,7 @@ class {{ $settings->getClassName() }} extends Migration {
 	 * @return(void)
 	 */
 	public function down() {
-		Schema::dropIfExists("{{ Str::of($model->getClassName())->lower()->plural() }}");
+		Schema::dropIfExists("{{ $table }}");
 	}
 
 }
