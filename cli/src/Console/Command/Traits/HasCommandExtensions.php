@@ -45,7 +45,6 @@ use function array_key_exists;
 use function get_class;
 use function is_array;
 use function is_callable;
-use function var_dump;
 
 trait HasCommandExtensions {
 
@@ -107,7 +106,7 @@ trait HasCommandExtensions {
 		if(is_callable($value)) {
 			$value = ($value)($this);
 		}
-//var_dump($class);
+
 		if($value === null and !$allowEmpty) {
 			throw new InvalidExtensionValueException("Tried to retrieve invalid value for extension '{$class}'");
 		}
