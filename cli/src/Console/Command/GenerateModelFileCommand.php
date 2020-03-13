@@ -53,7 +53,9 @@ class GenerateModelFileCommand extends GenerateFileCommand {
 			new ModelArgument($this->baseName),
 			new NamespaceOption,
 			new StructureOption,
-			new FileSettingsExtension($this->template, $this->fileSettings)
+			new FileSettingsExtension($this->template, $this->fileSettings, static function (GenerateFileCommand $command) : string {
+				return $command->runNameFormatCallback($this->getModelFileSettings()->getClassName());
+			})
 		]);
 	}
 
@@ -66,10 +68,6 @@ class GenerateModelFileCommand extends GenerateFileCommand {
 
 	public function getModelFileSettings() : ClassFileSettings {
 		return ModelArgument::valueFor($this);
-	}
-
-	protected function resolveFileName(string $fallback = null) : string {
-		return parent::resolveFileName($fallback ?? $this->getModelFileSettings()->getClassName());
 	}
 
 }

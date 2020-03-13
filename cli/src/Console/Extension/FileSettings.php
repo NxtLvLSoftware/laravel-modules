@@ -37,7 +37,6 @@ declare(strict_types=1);
 namespace NxtLvlSoftware\LaravelModulesCli\Console\Extension;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 use NxtLvlSoftware\LaravelModulesCli\Console\Command\BaseCommand;
 use NxtLvlSoftware\LaravelModulesCli\Console\Traits\RequiresModuleSettings;
 use NxtLvlSoftware\LaravelModulesCli\Contract\Console\Extension\Resolvable;
@@ -57,13 +56,24 @@ class FileSettings extends CommandExtension implements Resolvable {
 	 */
 	private $class;
 
-	public function __construct(string $template, ?string $class) {
+	/**
+	 * @var callable
+	 */
+	private $nameResolver;
+
+	/**
+	 * @var bool|null
+	 */
+	private $resolved = null;
+
+	public function __construct(string $template, ?string $class, callable $nameResolver = null) {
 		if($class === null or !is_a($class, Settings::class, true)) {
 			$class = Settings::class;
 		}
 
 		$this->template = $template;
 		$this->class = $class;
+		$this->nameResolver = $nameResolver;
 	}
 
 	/**
@@ -77,6 +87,21 @@ class FileSettings extends CommandExtension implements Resolvable {
 	 * @inheritDoc
 	 */
 	public function resolve($input) {
+		/** @var $input \NxtLvlSoftware\LaravelModulesCli\Setting\FileSettings */
+		$resolver = $this->nameResolver;
+		$resolved = &$this->resolved;
+		if($resolver !== null) {
+			return static function(BaseCommand $command) use($input, $resolver, &$resolved) : Settings {
+				if($resolved === null) {
+					$resolved = true; // locking var to prevent the resolver callback invoking itself recursively
+					$input
+						->setName(($resolver)($command)); // only resolve the value once
+				}
+
+				return $input;
+			};
+		}
+
 		return $input;
 	}
 

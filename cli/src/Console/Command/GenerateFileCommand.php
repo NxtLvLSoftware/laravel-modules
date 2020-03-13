@@ -80,7 +80,9 @@ class GenerateFileCommand extends BaseCommand {
 			new NameArgument($this->baseName),
 			new NamespaceOption,
 			new StructureOption,
-			new FileSettingsExtension($this->template, $this->fileSettings)
+			new FileSettingsExtension($this->template, $this->fileSettings, static function (GenerateFileCommand $command) : string {
+				return $command->runNameFormatCallback(NameArgument::valueFor($command));
+			})
 		]);
 	}
 
@@ -98,7 +100,6 @@ class GenerateFileCommand extends BaseCommand {
 		$generator = new FileGenerator(
 			$this->getModuleDisk(),
 			$this->getFileSettings()
-				->setName($this->resolveFileName())
 		);
 
 		$generator->generate();
@@ -118,9 +119,12 @@ class GenerateFileCommand extends BaseCommand {
 		return $this;
 	}
 
-	protected function resolveFileName(string $fallback = null) : string {
-		$fallback = $fallback ?? NameArgument::valueFor($this);
-		return $this->callNamedCallback(self::CALLBACK_NAME, $this, $fallback) ?? $fallback;
+	/**
+	 * Run the out file name format callback and fallback to the ordinal name if
+	 * it returns null or isn't found.
+	 */
+	protected function runNameFormatCallback(string $name) : string {
+		return $this->callNamedCallback(self::CALLBACK_NAME, $this, $name) ?? $name;
 	}
 
 }
